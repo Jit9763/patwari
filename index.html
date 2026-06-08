@@ -3696,6 +3696,21 @@
       }
     }
 
+    function formatDateToDMY(dateStr) {
+      if (!dateStr) return '';
+      const s = String(dateStr).trim();
+      if (s.indexOf('-') === -1) return s;
+      try {
+        const parts = s.split('-');
+        if (parts.length === 3) {
+          if (parts[0].length === 4) {
+            return `${parts[2]}/${parts[1]}/${parts[0]}`;
+          }
+        }
+      } catch (e) { }
+      return s;
+    }
+
     // ==========================================
     // INITIALIZE STATIC TABLES
     // ==========================================
@@ -5294,12 +5309,12 @@
             <div class="review-item"><strong>मोबाइल नंबर:</strong> ${data.mobile_no || '-'}</div>
             <div class="review-item"><strong>ILR वृत्त:</strong> ${data.ilr_circle || '-'}</div>
             <div class="review-item"><strong>तहसील (जिला):</strong> ${data.tehsil || '-'} (${data.district || '-'})</div>
-            <div class="review-item"><strong>निरीक्षण दिनांक:</strong> ${data.inspection_date || ''}</div>
-            <div class="review-item"><strong>जन्म तिथि:</strong> ${data.dob || ''}</div>
+            <div class="review-item"><strong>निरीक्षण दिनांक:</strong> ${formatDateToDMY(data.inspection_date)}</div>
+            <div class="review-item"><strong>जन्म तिथि:</strong> ${formatDateToDMY(data.dob)}</div>
             <div class="review-item"><strong>गृह नगर:</strong> ${data.hometown || '-'}</div>
             <div class="review-item"><strong>योग्यता:</strong> ${data.qualification || '-'}</div>
-            <div class="review-item"><strong>प्रथम नियुक्ति तिथि:</strong> ${data.first_appointment_date || ''}</div>
-            <div class="review-item"><strong>वर्तमान पदस्थापन तिथि:</strong> ${data.current_joining_date || ''}</div>
+            <div class="review-item"><strong>प्रथम नियुक्ति तिथि:</strong> ${formatDateToDMY(data.first_appointment_date)}</div>
+            <div class="review-item"><strong>वर्तमान पदस्थापन तिथि:</strong> ${formatDateToDMY(data.current_joining_date)}</div>
             <div class="review-item"><strong>मूल वेतन:</strong> ₹${data.basic_salary || '-'}</div>
             <div class="review-item"><strong>स्थिति:</strong> ${data.permanent_status || '-'} / ${data.trained_status || '-'} / ${data.exam_passed_status || '-'}</div>
             <div class="review-item"><strong>मुख्यालय निवास:</strong> ${data.residence_type || '-'} (${data.residence_details || '-'})</div>
@@ -5341,6 +5356,8 @@
             } else {
               val = '-';
             }
+          } else if (k.toLowerCase().includes('date')) {
+            val = formatDateToDMY(val);
           }
           tds += `<td>${val}</td>`;
         });
@@ -5591,8 +5608,8 @@
           <div class="review-section-title">13. नियम-121 रजिस्टर संधारण</div>
           <div class="review-grid">
             <div class="review-item"><strong>रजिस्टर स्थिति:</strong> ${data.rule121_register || '-'}</div>
-            <div class="review-item"><strong>इन्द्राज पाया गया दिनांक:</strong> ${data.rule121_entry_date || ''}</div>
-            <div class="review-item"><strong>कब से इन्द्राज नहीं है:</strong> ${admin.rule121_pending_date || ''}</div>
+            <div class="review-item"><strong>इन्द्राज पाया गया दिनांक:</strong> ${formatDateToDMY(data.rule121_entry_date)}</div>
+            <div class="review-item"><strong>कब से इन्द्राज नहीं है:</strong> ${formatDateToDMY(admin.rule121_pending_date)}</div>
           </div>
         </div>
       `;
@@ -5760,8 +5777,8 @@
           <div class="review-section-title">17. (नियम-109) वसूली विवरण</div>
           <div class="review-grid" style="margin-bottom: 10px;">
             <div class="review-item"><strong>वसूली प्रारम्भ नहीं की गई ग्रामों की संख्या:</strong> ${data.recovery_not_started_count || 0}</div>
-            <div class="review-item"><strong>वसूली का अंतिम दिनांक:</strong> ${data.recovery_last_date || ''}</div>
-            <div class="review-item"><strong>वसूलशुदा राशि जमा राजकोष होने से शेष अवधि:</strong> ${data.recovery_pending_start_date || ''} से ${data.recovery_pending_end_date || ''}</div>
+            <div class="review-item"><strong>वसूली का अंतिम दिनांक:</strong> ${formatDateToDMY(data.recovery_last_date)}</div>
+            <div class="review-item"><strong>वसूलशुदा राशि जमा राजकोष होने से शेष अवधि:</strong> ${formatDateToDMY(data.recovery_pending_start_date)} से ${formatDateToDMY(data.recovery_pending_end_date)}</div>
           </div>
           ${recoveryHtml}
           <div style="margin-top: 15px; font-weight: bold; color: var(--primary-color);">17.2 राजकोष में जमा का विवरण (Treasury Deposits):</div>
@@ -5831,7 +5848,7 @@
             <div class="review-section-title">22. रजिस्टर सर्वे यंत्र (पी-36) (नियम-169(4))</div>
             <div class="review-grid">
               <div class="review-item"><strong>संधारित है:</strong> ${store.store_reg_status || 'हाँ'}</div>
-              <div class="review-item"><strong>मिलान दिनांक:</strong> ${store.store_verification_date || ''}</div>
+              <div class="review-item"><strong>मिलान दिनांक:</strong> ${formatDateToDMY(store.store_verification_date)}</div>
               <div class="review-item"><strong>सामान मौजूद स्थिति:</strong> ${store.store_items_status || '-'}</div>
               <div class="review-item"><strong>विशेष टिप्पणी:</strong> ${admin.store_remarks || '-'}</div>
             </div>
@@ -8603,7 +8620,7 @@
         <div class="print-header">
           <h1>राजस्व ग्राम निरीक्षण रिपोर्ट</h1>
           <p>कार्यालय उपखंड अधिकारी: ${data.prefilled_sdm_name || data.sdm_name || 'भिनाय'} | उपखंड: ${data.tehsil || 'भिनाय'} (${data.district || 'अजमेर'})</p>
-          <p><strong>निरीक्षण दिनांक:</strong> ${data.inspection_date || ''} | <strong>रिपोर्ट आईडी:</strong> ${data.report_id || 'MOCK'}</p>
+          <p><strong>निरीक्षण दिनांक:</strong> ${formatDateToDMY(data.inspection_date)} | <strong>रिपोर्ट आईडी:</strong> ${data.report_id || 'MOCK'}</p>
         </div>
 
         <div class="print-section">
@@ -8632,8 +8649,8 @@
             <tr>
               <td><strong>नियुक्ति तिथि (सेवा/मण्डल):</strong></td><td>${(() => {
                 const dates = [];
-                if (data.first_appointment_date) dates.push(data.first_appointment_date);
-                if (data.current_joining_date) dates.push(data.current_joining_date);
+                if (data.first_appointment_date) dates.push(formatDateToDMY(data.first_appointment_date));
+                if (data.current_joining_date) dates.push(formatDateToDMY(data.current_joining_date));
                 return dates.length > 0 ? dates.join(' / ') : '';
               })()}</td>
               <td><strong>मूल वेतन:</strong></td><td>₹${data.basic_salary || '0'}</td>
@@ -8796,19 +8813,7 @@
       let kanungo = {};
       try { kanungo = typeof data.kanungo_json === 'string' ? JSON.parse(data.kanungo_json || '{}') : (data.kanungo_json || {}); } catch (e) { }
 
-      let formattedCircDate = '';
-      if (kanungo.circ_order_date) {
-        try {
-          const parts = kanungo.circ_order_date.split('-');
-          if (parts.length === 3) {
-            formattedCircDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
-          } else {
-            formattedCircDate = kanungo.circ_order_date;
-          }
-        } catch (e) {
-          formattedCircDate = kanungo.circ_order_date;
-        }
-      }
+      let formattedCircDate = formatDateToDMY(kanungo.circ_order_date);
 
       html += `
         <div class="print-section" style="page-break-inside: avoid;">
@@ -9141,8 +9146,8 @@
 
       // Section 13: नियम-121 रजिस्टर
       const r121Reg = data.rule121_register || adminObj.rule121_register || '....................';
-      const r121Date = data.rule121_entry_date || adminObj.rule121_entry_date || '';
-      const r121PendingDate = adminObj.rule121_pending_date || '';
+      const r121Date = formatDateToDMY(data.rule121_entry_date || adminObj.rule121_entry_date || '');
+      const r121PendingDate = formatDateToDMY(adminObj.rule121_pending_date || '');
       html += `
         <div class="print-section" style="page-break-inside: avoid;">
           <div class="print-section-title">13. नियम-121 रजिस्टर संधारण:-</div>
@@ -9191,9 +9196,9 @@
 
       // Section 17: वसूली विवरण
       const recCount = data.recovery_not_started_count !== undefined ? data.recovery_not_started_count : '..........';
-      const recLastDate = data.recovery_last_date || '';
-      const recStart = data.recovery_pending_start_date || '';
-      const recEnd = data.recovery_pending_end_date || '';
+      const recLastDate = formatDateToDMY(data.recovery_last_date || '');
+      const recStart = formatDateToDMY(data.recovery_pending_start_date || '');
+      const recEnd = formatDateToDMY(data.recovery_pending_end_date || '');
 
       html += `
         <div class="print-section" style="page-break-inside: avoid;">
@@ -9406,7 +9411,7 @@
           <table class="print-table">
             <tr>
               <td><strong>रजिस्टर संधारित है अथवा नहीं:</strong></td><td>${storeInv.store_reg_status || 'हाँ'}</td>
-              <td><strong>सामान का मिलान आॅ.का. से करवाने का दिनांक:</strong></td><td>${storeInv.store_verification_date || ''}</td>
+              <td><strong>सामान का मिलान आॅ.का. से करवाने का दिनांक:</strong></td><td>${formatDateToDMY(storeInv.store_verification_date)}</td>
             </tr>
             <tr>
               <td><strong>पंजिका में दर्ज सामान पटवारी के पास मौजूद होने की स्थिति:</strong></td><td colspan="3">${storeInv.store_items_status || '-'}</td>
@@ -9789,17 +9794,7 @@
       if (mode === 'sdm' || mode === 'admin_verified') {
         const dispatchNo = data.sdm_dispatch_no || '..........';
         const dispatchDateRaw = data.sdm_dispatch_date || '';
-        let formattedDispatchDate = '';
-        if (dispatchDateRaw) {
-          try {
-            const parts = dispatchDateRaw.split('-');
-            if (parts.length === 3) {
-              formattedDispatchDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
-            } else {
-              formattedDispatchDate = dispatchDateRaw;
-            }
-          } catch (e) { }
-        }
+        let formattedDispatchDate = formatDateToDMY(dispatchDateRaw);
 
         html += `
           <div class="print-section" style="page-break-before: always; margin-top: 30px; font-family: var(--font-hindi);">
@@ -9864,6 +9859,8 @@
             } else {
               val = '-';
             }
+          } else if (k.toLowerCase().includes('date')) {
+            val = formatDateToDMY(val);
           }
           tds += `<td>${val}</td>`;
         });

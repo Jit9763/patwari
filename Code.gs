@@ -322,7 +322,26 @@ function savePatwariReport(data) {
       data.overall_remarks || ''
     ];
     
-    sheet.appendRow(rowData);
+    // Check if report with same reportId already exists to prevent duplicates
+    const lastRow = sheet.getLastRow();
+    let rowToUpdate = -1;
+    if (lastRow > 1) {
+      const ids = sheet.getRange(2, 1, lastRow - 1, 1).getValues();
+      for (let i = 0; i < ids.length; i++) {
+        if (String(ids[i][0]).trim() === String(reportId).trim()) {
+          rowToUpdate = i + 2;
+          break;
+        }
+      }
+    }
+
+    if (rowToUpdate > -1) {
+      // Update existing row
+      sheet.getRange(rowToUpdate, 1, 1, rowData.length).setValues([rowData]);
+    } else {
+      // Append new row
+      sheet.appendRow(rowData);
+    }
     
     return {
       status: 'success',
@@ -421,7 +440,26 @@ function saveSdmReport(data) {
       data.overall_remarks || ''
     ];
     
-    sheet.appendRow(rowData);
+    // Check if report with same sdmReportId already exists to prevent duplicates
+    const lastRow = sheet.getLastRow();
+    let rowToUpdate = -1;
+    if (lastRow > 1) {
+      const ids = sheet.getRange(2, 1, lastRow - 1, 1).getValues();
+      for (let i = 0; i < ids.length; i++) {
+        if (String(ids[i][0]).trim() === String(sdmReportId).trim()) {
+          rowToUpdate = i + 2;
+          break;
+        }
+      }
+    }
+
+    if (rowToUpdate > -1) {
+      // Update existing row
+      sheet.getRange(rowToUpdate, 1, 1, rowData.length).setValues([rowData]);
+    } else {
+      // Append new row
+      sheet.appendRow(rowData);
+    }
     
     return {
       status: 'success',
