@@ -1,0 +1,7 @@
+__pycache__/
+*.bak
+*.bak_*
+*.mangled
+temp_script.js
+scratch/
+server.log
