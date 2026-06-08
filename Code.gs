@@ -163,7 +163,7 @@ function getPatwariReportByMobile(mobile) {
       const key = headerKeys[headers[j]] || headers[j];
       let val = foundRow[j];
       if (val instanceof Date) {
-        val = val.toISOString().split('T')[0];
+        val = Utilities.formatDate(val, ss.getSpreadsheetTimeZone(), "yyyy-MM-dd");
       }
       report[key] = val;
     }
@@ -203,22 +203,28 @@ function getPendingPatwariReports() {
     const pData = patwariSheet.getRange(2, 1, pLastRow - 1, patwariSheet.getLastColumn()).getValues();
     const headerKeys = getHeaderKeysMap();
     
-    const pendingReports = [];
+    // Filter to keep only the latest patwari report for each unique report_id to avoid duplicates
+    const uniquePatwariMap = {};
     for (let i = 0; i < pData.length; i++) {
       const reportId = String(pData[i][0]).trim();
-      if (!approvedIds.has(reportId)) {
-        const report = {};
-        for (let j = 0; j < pHeaders.length; j++) {
-          const key = headerKeys[pHeaders[j]] || pHeaders[j];
-          let val = pData[i][j];
-          if (val instanceof Date) {
-            val = val.toISOString().split('T')[0];
-          }
-          report[key] = val;
+      const report = {};
+      for (let j = 0; j < pHeaders.length; j++) {
+        const key = headerKeys[pHeaders[j]] || pHeaders[j];
+        let val = pData[i][j];
+        if (val instanceof Date) {
+          val = Utilities.formatDate(val, ss.getSpreadsheetTimeZone(), "yyyy-MM-dd");
         }
-        pendingReports.push(report);
+        report[key] = val;
       }
+      uniquePatwariMap[reportId] = report;
     }
+
+    const pendingReports = [];
+    Object.keys(uniquePatwariMap).forEach(reportId => {
+      if (!approvedIds.has(reportId)) {
+        pendingReports.push(uniquePatwariMap[reportId]);
+      }
+    });
     
     return { status: 'success', reports: pendingReports };
   } catch (e) {
@@ -484,12 +490,8 @@ function getAdminDashboardData() {
     const pLastRow = patwariSheet.getLastRow();
     const sLastRow = sdmSheet.getLastRow();
     
-    const totalPatwari = pLastRow > 1 ? pLastRow - 1 : 0;
-    const totalSdm = sLastRow > 1 ? sLastRow - 1 : 0;
-    const totalPending = Math.max(0, totalPatwari - totalSdm);
-    
     let patwariReports = [];
-    if (totalPatwari > 0) {
+    if (pLastRow > 1) {
       const pHeaders = patwariSheet.getRange(1, 1, 1, patwariSheet.getLastColumn()).getValues()[0];
       const pData = patwariSheet.getRange(2, 1, pLastRow - 1, patwariSheet.getLastColumn()).getValues();
       const pKeysMap = getHeaderKeysMap();
@@ -500,16 +502,24 @@ function getAdminDashboardData() {
           const key = pKeysMap[pHeaders[j]] || pHeaders[j];
           let val = row[j];
           if (val instanceof Date) {
-            val = val.toISOString().split('T')[0];
+            val = Utilities.formatDate(val, ss.getSpreadsheetTimeZone(), "yyyy-MM-dd");
           }
           obj[key] = val;
         }
         return obj;
       });
+      
+      // Filter out duplicate entries in patwari_reports, keeping only the latest one for each report_id
+      const uniquePatwariMap = {};
+      patwariReports.forEach(r => {
+        const id = r.report_id || r.mobile_no || 'UNKNOWN';
+        uniquePatwariMap[id] = r;
+      });
+      patwariReports = Object.keys(uniquePatwariMap).map(key => uniquePatwariMap[key]);
     }
     
     let sdmReports = [];
-    if (totalSdm > 0) {
+    if (sLastRow > 1) {
       const sHeaders = sdmSheet.getRange(1, 1, 1, sdmSheet.getLastColumn()).getValues()[0];
       const sData = sdmSheet.getRange(2, 1, sLastRow - 1, sdmSheet.getLastColumn()).getValues();
       const sKeysMap = getHeaderKeysMap();
@@ -520,13 +530,25 @@ function getAdminDashboardData() {
           const key = sKeysMap[sHeaders[j]] || sHeaders[j];
           let val = row[j];
           if (val instanceof Date) {
-            val = val.toISOString().split('T')[0];
+            val = Utilities.formatDate(val, ss.getSpreadsheetTimeZone(), "yyyy-MM-dd");
           }
           obj[key] = val;
         }
         return obj;
       });
+      
+      // Filter out duplicate entries in sdm_reports, keeping only the latest one for each patwari_report_id
+      const uniqueSdmMap = {};
+      sdmReports.forEach(r => {
+        const id = r.patwari_report_id || r.sdm_report_id || 'UNKNOWN';
+        uniqueSdmMap[id] = r;
+      });
+      sdmReports = Object.keys(uniqueSdmMap).map(key => uniqueSdmMap[key]);
     }
+    
+    const totalPatwari = patwariReports.length;
+    const totalSdm = sdmReports.length;
+    const totalPending = Math.max(0, totalPatwari - totalSdm);
     
     return {
       status: 'success',
