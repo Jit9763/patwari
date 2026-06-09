@@ -3175,17 +3175,6 @@
                   <label for="sdm_name">अनुमोदनकर्ता अधिकारी का नाम (SDM Name) <span>*</span></label>
                   <input type="text" id="sdm_name" class="form-input" placeholder="जैसे: श्री रामजी लाल चौधरी">
                 </div>
-                <div class="form-group">
-                  <label for="sdm_comments">एसडीएम सत्यापन टिप्पणी (SDM Remarks) <span>*</span></label>
-                  <textarea id="sdm_comments" class="form-input" style="height: 50px;"
-                    placeholder="निरीक्षण संतोषजनक पाया गया..."></textarea>
-                  <div class="suggestion-container" data-target="sdm_comments">
-                    <span class="suggestion-chip"
-                      onclick="fillInput('sdm_comments', 'पटवारी द्वारा प्रस्तुत रिपोर्ट का सत्यापन कर रिकॉर्ड अनुमोदित किया जाता है।')">अनुमोदित</span>
-                    <span class="suggestion-chip"
-                      onclick="fillInput('sdm_comments', 'रिपोर्ट में दर्ज विवरण संतोषजनक पाए गए हैं।')">संतोषजनक</span>
-                  </div>
-                </div>
               </div>
 
               <!-- Section 44: उपसंहार (Only visible and filled by SDM) -->
@@ -3193,18 +3182,11 @@
                 <label for="conclusion_text">निष्कर्ष/टिप्पणी (Conclusion Remarks) <span>*</span></label>
                 <textarea id="conclusion_text" class="form-input" style="height: 80px;"
                   placeholder="निष्कर्ष यहाँ दर्ज करें..."></textarea>
-              </div>
-
-              <!-- Inspector/Patwari Overall Remarks (Only visible and filled by SDM) -->
-              <div class="form-group" style="margin-top: 15px;">
-                <label for="overall_remarks">निरीक्षक/पटवारी की समग्र विशेष टिप्पणी (Overall Remarks)</label>
-                <textarea id="overall_remarks" class="form-input" style="height: 80px;"
-                  placeholder="समग्र विशेष टिप्पणी यहाँ दर्ज करें..."></textarea>
-                <div class="suggestion-container" data-target="overall_remarks">
+                <div class="suggestion-container" data-target="conclusion_text">
                   <span class="suggestion-chip"
-                    onclick="fillInput('overall_remarks', 'पटवार मण्डल का कार्य सामान्यतः संतोषजनक पाया गया।')">संतोषजनक</span>
+                    onclick="fillInput('conclusion_text', 'निरीक्षण के दौरान पटवार हल्का का कार्य संतोषजनक पाया गया। अभिलेखों का संधारण नियमानुसार अद्यतन है।')">संतोषजनक व अद्यतन</span>
                   <span class="suggestion-chip"
-                    onclick="fillInput('overall_remarks', 'अभिलेखों के संधारण में पाई गई कमियों को तुरंत दुरुस्त करने के निर्देश दिए गए हैं।')">निर्देशित</span>
+                    onclick="fillInput('conclusion_text', 'पटवार मण्डल का कार्य सामान्यतः संतोषजनक पाया गया। अभिलेखों के संधारण में पाई गई कमियों को तुरंत दुरुस्त करने के निर्देश दिए गए हैं।')">संतोषजनक (कमियों में सुधार निर्देश)</span>
                 </div>
               </div>
 
@@ -4780,10 +4762,9 @@
           // Show SDM Verification Fields
           document.getElementById('sdmVerificationFields').style.display = 'block';
 
-          // Prefill SDM name and comment if they exist
+          // Prefill SDM name if it exists
           if (loadedReportData) {
             document.getElementById('sdm_name').value = loadedReportData.sdm_name || loadedReportData.prefilled_sdm_name || '';
-            document.getElementById('sdm_comments').value = loadedReportData.sdm_comments || '';
           }
 
           setTimeout(() => {
@@ -6406,12 +6387,11 @@
       } catch (e) { }
 
       // Section 44: उपसंहार
-      if ((isSdmVerificationMode || sdmLoadedReport) && (data.conclusion_text || data.overall_remarks)) {
+      if ((isSdmVerificationMode || sdmLoadedReport) && data.conclusion_text) {
         html += `
           <div class="review-section">
             <div class="review-section-title">44. उपसंहार</div>
-            ${data.conclusion_text ? `<p style="font-size: 0.8rem; font-style: italic; margin-bottom: 5px;"><strong>निष्कर्ष/टिप्पणी:</strong> ${data.conclusion_text}</p>` : ''}
-            ${data.overall_remarks ? `<p style="font-size: 0.8rem; font-style: italic; margin-top: 5px;"><strong>निरीक्षक/पटवारी की समग्र विशेष टिप्पणी (Overall Remarks):</strong> ${data.overall_remarks}</p>` : ''}
+            <p style="font-size: 0.8rem; font-style: italic; margin-bottom: 5px;"><strong>निष्कर्ष/टिप्पणी:</strong> ${data.conclusion_text}</p>
           </div>
         `;
       }
@@ -7637,12 +7617,12 @@
     function submitSdmReport() {
       if (!sdmLoadedReport) return;
 
-      const sdmComment = document.getElementById('sdm_comments').value.trim();
+      const sdmComment = document.getElementById('conclusion_text').value.trim();
       const sdmName = document.getElementById('sdm_name').value.trim();
       const sdmSigState = signatureCanvasStates['sdmSigCanvas'];
 
       if (!sdmComment || !sdmName) {
-        alert('कृपया एसडीएम का नाम और विशेष टिप्पणी दर्ज करें।');
+        alert('कृपया एसडीएम का नाम और निष्कर्ष/टिप्पणी दर्ज करें।');
         return;
       }
       if (!sdmSigState.hasSigned) {
@@ -10158,26 +10138,12 @@
         <div class="print-section" style="page-break-inside: avoid;">
           <div class="print-section-title">44. उपसंहार:-</div>
           <div style="font-size: 0.85rem; padding: 8px; border: 1px solid var(--border-color); background-color: #fafafa; font-family: var(--font-hindi); min-height: 40px; line-height:1.6;">
-            <p style="margin: 0 0 6px 0;"><strong>निष्कर्ष/टिप्पणी:</strong> ${data.conclusion_text || '-'}</p>
-            ${(mode === 'sdm' || mode === 'admin_verified') && data.overall_remarks ? `<p style="margin: 6px 0 0 0; border-top: 1px dashed #cbd5e1; padding-top: 6px;"><strong>निरीक्षक/पटवारी की समग्र विशेष टिप्पणी (Overall Remarks):</strong> ${data.overall_remarks}</p>` : ''}
+            <p style="margin: 0;"><strong>निष्कर्ष/टिप्पणी:</strong> ${data.conclusion_text || '-'}</p>
           </div>
         </div>
       `;
 
-      // Overall special comments
-      if ((mode === 'sdm' || mode === 'admin_verified') && data.sdm_comments) {
-        html += `
-          <div class="print-section" style="page-break-inside: avoid;">
-            <div class="print-section-title">समग्र विशेष टिप्पणी</div>
-            <table class="print-table">
-              <tr style="background-color:rgba(6, 78, 59, 0.03);">
-                <td><strong>एसडीएम सत्यापन टिप्पणी:</strong></td>
-                <td style="font-weight:600; color:#064e3b;">${data.sdm_comments}</td>
-              </tr>
-            </table>
-          </div>
-        `;
-      }
+
 
       // Signatures
       let pSigSrc = '';
@@ -10228,7 +10194,8 @@
 
         html += `
           <div class="print-section" style="page-break-before: always; margin-top: 30px; font-family: var(--font-hindi);">
-            <div style="text-align: right; margin-bottom: 30px; margin-right: 50px;">
+            <div style="margin-left: auto; margin-right: 50px; text-align: center; width: 200px; margin-bottom: 30px;">
+              ${sSigSrc ? `<img class="print-signature-image" src="${sSigSrc}" alt="SDM Sig" style="max-height: 80px; display: block; margin: 0 auto 5px auto;">` : ''}
               <p style="font-weight: bold; margin: 0; font-size: 0.95rem;">उपखण्ड अधिकारी</p>
               <p style="margin: 0; font-size: 0.95rem;">भिनाय</p>
             </div>
@@ -10242,8 +10209,8 @@
               <li style="margin-bottom: 8px;">तहसीलदार (भू०अ०), तहसील <span style="text-decoration: underline;">${data.sdm_dispatch_tehsil || data.tehsil || 'भिनाय'}</span> को प्रेषित कर लेख है कि निरीक्षण की पालना नियत अवधि में सुनिश्चित करावें।</li>
               <li style="margin-bottom: 8px;">पटवारी पटवार हल्का <span style="text-decoration: underline;">${data.sdm_dispatch_patwari_circle || data.patwar_mandal || '..............................'}</span> तहसील <span style="text-decoration: underline;">${data.sdm_dispatch_patwari_tehsil || data.tehsil || 'भिनाय'}</span> को प्रेषित कर लेख है कि निरीक्षण की पालना अन्दर एक माह में पालना प्रतिवेदन पेश करें।</li>
             </ol>
-            <div style="text-align: right; margin-top: 50px; margin-right: 50px;">
-              ${sSigSrc ? `<img class="print-signature-image" src="${sSigSrc}" alt="SDM Sig" style="max-height: 80px; display: block; margin: 0 0 5px auto;">` : ''}
+            <div style="margin-left: auto; margin-right: 50px; text-align: center; width: 200px; margin-top: 50px;">
+              ${sSigSrc ? `<img class="print-signature-image" src="${sSigSrc}" alt="SDM Sig" style="max-height: 80px; display: block; margin: 0 auto 5px auto;">` : ''}
               <p style="font-weight: bold; margin: 0; font-size: 0.95rem;">उपखण्ड अधिकारी</p>
               <p style="margin: 0; font-size: 0.95rem;">भिनाय</p>
             </div>
