@@ -5990,9 +5990,9 @@
                   <td><strong>${row.tr_head || ''}</strong></td>
                   <td>${row.tr_recovery || '0'}</td>
                   <td>${row.tr_amount || '0'}</td>
-                  <td>${row.tr_amount_date || '-'}</td>
+                  <td>${formatDateToDMY(row.tr_amount_date) || '-'}</td>
                   <td>${row.tr_timeliness || '-'}</td>
-                  <td>${row.tr_tehsil_date || '-'}</td>
+                  <td>${formatDateToDMY(row.tr_tehsil_date) || '-'}</td>
                   <td>${row.tr_diary || '-'}</td>
                 </tr>
               `;
@@ -9694,14 +9694,14 @@
               rowsHtml += `
                 <tr>
                   <td style="border:1px solid #000; padding:4px;"><strong>${vName}</strong></td>
-                  <td style="border:1px solid #000; padding:4px;">${row.tr_period || ''}</td>
+                  <td style="border:1px solid #000; padding:4px;">${row.tr_period || '-'}</td>
                   <td style="border:1px solid #000; padding:4px;"><strong>${row.tr_head || ''}</strong></td>
-                  <td style="border:1px solid #000; padding:4px;">${row.tr_recovery || ''}</td>
-                  <td style="border:1px solid #000; padding:4px;">${row.tr_amount || ''}</td>
-                  <td style="border:1px solid #000; padding:4px;">${row.tr_amount_date || ''}</td>
-                  <td style="border:1px solid #000; padding:4px;">${row.tr_timeliness || ''}</td>
-                  <td style="border:1px solid #000; padding:4px;">${row.tr_tehsil_date || ''}</td>
-                  <td style="border:1px solid #000; padding:4px;">${row.tr_diary || ''}</td>
+                  <td style="border:1px solid #000; padding:4px;">${row.tr_recovery || '0'}</td>
+                  <td style="border:1px solid #000; padding:4px;">${row.tr_amount || '0'}</td>
+                  <td style="border:1px solid #000; padding:4px;">${formatDateToDMY(row.tr_amount_date) || '-'}</td>
+                  <td style="border:1px solid #000; padding:4px;">${row.tr_timeliness || '-'}</td>
+                  <td style="border:1px solid #000; padding:4px;">${formatDateToDMY(row.tr_tehsil_date) || '-'}</td>
+                  <td style="border:1px solid #000; padding:4px;">${row.tr_diary || '-'}</td>
                 </tr>
               `;
             });
