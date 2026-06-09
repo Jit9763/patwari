@@ -5161,6 +5161,15 @@
         setVal('al_remarks', admin.al_remarks);
         setVal('ga_remarks', admin.ga_remarks);
         setVal('court_cases_remarks', admin.court_cases_remarks);
+
+        setVal('exam_passed_year', admin.exam_passed_year || data.exam_passed_year || '');
+        setVal('dhal_remarks', admin.dhal_remarks || '');
+        setVal('recovery_remarks', admin.recovery_remarks || '');
+        setVal('rule116_remarks', admin.rule116_remarks || '');
+        setVal('accidents_remarks', admin.accidents_remarks || '');
+        setVal('diary_duty_compliance', admin.diary_duty_compliance || 'हाँ');
+        setVal('diary_duty_remarks', admin.diary_duty_remarks || '');
+        setVal('jinswar_submit_status', admin.jinswar_submit_status || 'समय पर पेश किये जाते हैं');
       } catch (e) { }
 
       // Court Cases & Summary
@@ -6214,6 +6223,10 @@
       data.permanent_status = getVal('permanent_status');
       data.trained_status = getVal('trained_status');
       data.exam_passed_status = getVal('exam_passed_status');
+      data.exam_passed_year = getVal('exam_passed_year');
+      data.diary_duty_compliance = getVal('diary_duty_compliance');
+      data.diary_duty_remarks = getVal('diary_duty_remarks');
+      data.jinswar_submit_status = getVal('jinswar_submit_status');
       data.patwar_hq = getVal('patwar_hq');
       data.residence_type = getVal('residence_type');
       data.residence_details = getVal('residence_details');
@@ -6594,7 +6607,15 @@
         nk_inst_custodian: getVal('nk_inst_custodian'),
         nk_inst_allottee: getVal('nk_inst_allottee'),
         nk_inst_settled: getVal('nk_inst_settled'),
-        nk_inst_leaseholder: getVal('nk_inst_leaseholder')
+        nk_inst_leaseholder: getVal('nk_inst_leaseholder'),
+        exam_passed_year: getVal('exam_passed_year'),
+        dhal_remarks: getVal('dhal_remarks'),
+        recovery_remarks: getVal('recovery_remarks'),
+        rule116_remarks: getVal('rule116_remarks'),
+        accidents_remarks: getVal('accidents_remarks'),
+        diary_duty_compliance: getVal('diary_duty_compliance'),
+        diary_duty_remarks: getVal('diary_duty_remarks'),
+        jinswar_submit_status: getVal('jinswar_submit_status')
       };
       data.other_admin_json = JSON.stringify(admin);
 
@@ -8620,7 +8641,7 @@
         <div class="print-header">
           <h1>राजस्व ग्राम निरीक्षण रिपोर्ट</h1>
           <p>कार्यालय उपखंड अधिकारी: ${data.prefilled_sdm_name || data.sdm_name || 'भिनाय'} | उपखंड: ${data.tehsil || 'भिनाय'} (${data.district || 'अजमेर'})</p>
-          <p><strong>निरीक्षण दिनांक:</strong> ${formatDateToDMY(data.inspection_date)} | <strong>रिपोर्ट आईडी:</strong> ${data.report_id || 'MOCK'}</p>
+          <p><strong>निरीक्षण दिनांक:</strong> ${formatDateToDMY(data.inspection_date) || '..........'} | <strong>रिपोर्ट आईडी:</strong> ${data.report_id || 'MOCK'}</p>
         </div>
 
         <div class="print-section">
@@ -8643,20 +8664,24 @@
               <td><strong>निरीक्षण स्थल:</strong></td><td>${data.inspection_place || 'पटवार मुख्यालय'}</td>
             </tr>
             <tr>
+              <td><strong>जन्म तिथि (DOB):</strong></td><td>${formatDateToDMY(data.dob) || '-'}</td>
               <td><strong>मूल निवास:</strong></td><td>${data.hometown || '-'}</td>
-              <td><strong>योग्यता:</strong></td><td>${data.qualification || '-'}</td>
+            </tr>
+            <tr>
+              <td><strong>योग्यता (Qualification):</strong></td><td>${data.qualification || '-'}</td>
+              <td><strong>पटवार मुख्यालय ग्राम (HQ):</strong></td><td>${data.patwar_hq || '-'}</td>
             </tr>
             <tr>
               <td><strong>नियुक्ति तिथि (सेवा/मण्डल):</strong></td><td>${(() => {
                 const dates = [];
                 if (data.first_appointment_date) dates.push(formatDateToDMY(data.first_appointment_date));
                 if (data.current_joining_date) dates.push(formatDateToDMY(data.current_joining_date));
-                return dates.length > 0 ? dates.join(' / ') : '';
+                return dates.length > 0 ? dates.join(' / ') : '-';
               })()}</td>
               <td><strong>मूल वेतन:</strong></td><td>₹${data.basic_salary || '0'}</td>
             </tr>
             <tr>
-              <td><strong>सेवा स्थिति:</strong></td><td>${data.permanent_status || '-'} / ${data.trained_status || '-'} / परीक्षा: ${data.exam_passed_status || '-'}</td>
+              <td><strong>सेवा स्थिति:</strong></td><td>${data.permanent_status || '-'} / ${data.trained_status || '-'} / परीक्षा उत्तीर्ण: ${data.exam_passed_status || '-'} ${data.exam_passed_status === 'हाँ' && (data.exam_passed_year || adminObj.exam_passed_year) ? `(${(data.exam_passed_year || adminObj.exam_passed_year)})` : ''}</td>
               <td><strong>मुख्यालय निवास:</strong></td><td>${data.residence_type || '-'} (${data.residence_details || '-'})</td>
             </tr>
             <tr>
@@ -8723,14 +8748,17 @@
       } else {
         html += `<p style="font-size: 0.8rem; font-style: italic; color: #64748b; margin-bottom: 5px;">(कोई गत निरीक्षण नहीं दर्ज किया गया)</p>`;
       }
-      if (insRemarks) {
-        html += `<p style="font-size: 0.85rem; margin-top: 8px;"><strong>गत निरीक्षण टिप्पणी/कमी:</strong> ${insRemarks}</p>`;
+      const finalInsRemarks = data.past_inspections_remarks || insRemarks || '';
+      if (finalInsRemarks) {
+        html += `<p style="font-size: 0.85rem; margin-top: 8px;"><strong>गत निरीक्षण टिप्पणी/कमी:</strong> ${finalInsRemarks}</p>`;
       }
       html += `</div>`;
 
       // Section 4: दैनिक डायरी संधारण (नियम-55)
       let r55 = {};
       try { r55 = typeof data.rule55_json === 'string' ? JSON.parse(data.rule55_json) : data.rule55_json; } catch (e) { }
+      const diaryDutyComp = data.diary_duty_compliance || adminObj.diary_duty_compliance || 'हाँ';
+      const diaryDutyRem = data.diary_duty_remarks || adminObj.diary_duty_remarks || '';
       html += `
         <div class="print-section">
           <div class="print-section-title">4. दिनचर्या बही (पी-2) :-</div>
@@ -8753,6 +8781,8 @@
               <td><strong>असाधारण घटना उल्लेख?</strong></td><td>${r55.diary_extraordinary || 'लागू नहीं'}</td>
             </tr>
           </table>
+          <p style="font-size: 0.85rem; font-family: var(--font-hindi); margin-top: 8px; margin-bottom: 4px;"><strong>कर्तव्य हिदायत की पालना स्थिति:</strong> ${diaryDutyComp === 'हाँ' ? 'हाँ (पालना की जा रही है)' : 'नहीं (भविष्य में पालना की हिदायत दी गई)'}</p>
+          ${diaryDutyRem ? `<p style="font-size: 0.85rem; font-family: var(--font-hindi); margin-bottom: 8px;"><strong>विशेष टिप्पणी:</strong> ${diaryDutyRem}</p>` : ''}
         </div>
       `;
 
@@ -8855,7 +8885,7 @@
             </tbody>
           </table>
           <p style="font-size: 0.85rem; margin-top: 8px; font-family: var(--font-hindi); line-height: 1.6; text-align: justify;">
-            <strong>टिप्पणी:-निर्धारित प्रपत्र पर <span style="text-decoration: underline; text-underline-offset: 4px; padding: 0 4px; color: #065f46;">${kanungo.circ_status || 'बनी हुई है/नहीं है'}</span>। इसमें अंकित आदेश क्रमांक <span style="text-decoration: underline; text-underline-offset: 4px; padding: 0 4px; color: #065f46;">${kanungo.circ_order_no || '...............'}</span> पर आदेश दिनांक <span style="text-decoration: underline; text-underline-offset: 4px; padding: 0 4px; color: #065f46;">${formattedCircDate}</span> का विषय <span style="text-decoration: underline; text-underline-offset: 4px; padding: 0 4px; color: #065f46;">${kanungo.circ_order_subject || '...............'}</span> का है तथा कई महत्वपूर्ण आदेश इसमें अंकित नहीं है। तहसील अथवा भू-अभिलेख निरीक्षक की परिपत्र फाइल से मिलान कर अवशेष परिपत्रों का अंकन किया जावे तथा उनका ऑफ़िस कानूनगो नियम-49 अनुसार प्रमाणीकरण कराया जावे।</strong>
+            <strong>टिप्पणी:-निर्धारित प्रपत्र पर <span style="text-decoration: underline; text-underline-offset: 4px; padding: 0 4px; color: #065f46;">${kanungo.circ_status || 'बनी हुई है/नहीं है'}</span>। इसमें अंकित आदेश क्रमांक <span style="text-decoration: underline; text-underline-offset: 4px; padding: 0 4px; color: #065f46;">${kanungo.circ_order_no || '...............'}</span> पर आदेश दिनांक <span style="text-decoration: underline; text-underline-offset: 4px; padding: 0 4px; color: #065f46;">${formattedCircDate || '...............'}</span> का विषय <span style="text-decoration: underline; text-underline-offset: 4px; padding: 0 4px; color: #065f46;">${kanungo.circ_order_subject || '...............'}</span> का है तथा कई महत्वपूर्ण आदेश इसमें अंकित नहीं है। तहसील अथवा भू-अभिलेख निरीक्षक की परिपत्र फाइल से मिलान कर अवशेष परिपत्रों का अंकन किया जावे तथा उनका ऑफ़िस कानूनगो नियम-49 अनुसार प्रमाणीकरण कराया जावे।</strong>
             ${kanungo.remarks ? `<br><span style="font-style: italic; display: inline-block; margin-top: 5px;">अतिरिक्त विशेष टिप्पणी: ${kanungo.remarks}</span>` : ''}
           </p>
         </div>
@@ -9063,7 +9093,7 @@
         <div class="print-section">
           <div class="print-section-title">10. सामयिक फसल विवरण पत्र (नक्शा जिंसवार खरीफ, रबी, जायद रबी, मिलान खसरा, पूरक मिलान खसरा:- पी-16, 17, 18, 19क):-</div>
           <p style="font-size: 0.85rem; font-family: var(--font-hindi); margin-bottom: 8px;">
-            राजस्थान भू-राजस्व (भू-अभिलेख) नियम-1957 के नियम-99 व 149 अनुसार समय पर पेश किये जाते हैं/नहीं किये जाते हैं।
+            राजस्थान भू-राजस्व (भू-अभिलेख) नियम-1957 के नियम-99 व 149 अनुसार: <strong>${data.jinswar_submit_status || adminObj.jinswar_submit_status || 'समय पर पेश किये जाते हैं'}</strong>
           </p>
           ${jinswarHtml || '<p style="font-size:0.8rem; font-style:italic; color:#64748b;">कोई ग्राम फसल विवरण पत्र उपलब्ध नहीं है।</p>'}
         </div>
@@ -9152,7 +9182,7 @@
         <div class="print-section" style="page-break-inside: avoid;">
           <div class="print-section-title">13. नियम-121 रजिस्टर संधारण:-</div>
           <p style="font-size: 0.85rem; padding: 5px; border: 1px solid var(--border-color); background-color: #fafafa; font-family: var(--font-hindi); line-height: 1.6;">
-            (नियम-121) रजिस्टर निर्धारित प्रपत्र में संधारित <strong>${r121Reg}</strong>। दिनांक <strong>${r121Date}</strong> तक का इन्द्राज पाया गया। दिनांक <strong>${r121PendingDate}</strong> से आदिनांक का इन्द्राज नहीं किया हुआ पाया गया। पटवारी हल्का को हिदायत दी गई कि पूर्ण कर पालना से अवगत करावें।
+            (नियम-121) रजिस्टर निर्धारित प्रपत्र में संधारित <strong>${r121Reg}</strong>। दिनांक <strong>${r121Date || '..........'}</strong> तक का इन्द्राज पाया गया। दिनांक <strong>${r121PendingDate || '..........'}</strong> से आदिनांक का इन्द्राज नहीं किया हुआ पाया गया। पटवारी हल्का को हिदायत दी गई कि पूर्ण कर पालना से अवगत करावें।
           </p>
         </div>
       `;
@@ -9183,6 +9213,15 @@
           ['कुल खाते', 'पटवारी लंबित', 'भू0अ0नि0 लंबित', 'टी0आर0ए0 लंबित', 'राजस्व अधि0 लंबित', 'शेष रहने का कारण'], true
         );
       }
+      if (adminObj.dhal_remarks) {
+        html += `
+          <div class="print-section" style="page-break-inside: avoid;">
+            <p style="font-size: 0.85rem; padding: 5px; border: 1px solid var(--border-color); background-color: #fafafa; font-family: var(--font-hindi);">
+              <strong>टिप्पणी/कमियों का विवरण:-</strong> ${adminObj.dhal_remarks}
+            </p>
+          </div>
+        `;
+      }
 
       // Section 16: नियम-107 विशेष विवरण
       if (db.rule107_remarks) {
@@ -9204,7 +9243,7 @@
         <div class="print-section" style="page-break-inside: avoid;">
           <div class="print-section-title">17. (नियम-109) वसूली विवरण:-</div>
           <p style="font-size: 0.85rem; line-height: 1.6; font-family: var(--font-hindi); margin-bottom: 15px;">
-            पटवारी हल्का द्वारा कुल <strong>${recCount}</strong> ग्रामों की वसूली प्रारम्भ नहीं की गई है। अविलम्ब प्रारम्भ करें। की गई वसूली का अंतिम दिनांक <strong>${recLastDate}</strong> है तथा दिनांक <strong>${recStart}</strong> से <strong>${recEnd}</strong> तक की वसूलशुदा राशि जमा राजकोष होने से शेष है। अविलम्ब जमा करावें। ग्रामवार विवरण निम्नानुसार है:-
+            पटवारी हल्का द्वारा कुल <strong>${recCount}</strong> ग्रामों की वसूली प्रारम्भ नहीं की गई है। अविलम्ब प्रारम्भ करें। की गई वसूली का अंतिम दिनांक <strong>${recLastDate || '..........'}</strong> है तथा दिनांक <strong>${recStart || '..........'}</strong> से <strong>${recEnd || '..........'}</strong> तक की वसूलशुदा राशि जमा राजकोष होने से शेष है। अविलम्ब जमा करावें। ग्रामवार विवरण निम्नानुसार है:-
           </p>
         </div>
       `;
@@ -9331,6 +9370,15 @@
           });
         }
       } catch (e) { console.error('Error rendering print treasury tables:', e); }
+      if (adminObj.recovery_remarks) {
+        html += `
+          <div class="print-section" style="page-break-inside: avoid;">
+            <p style="font-size: 0.85rem; padding: 5px; border: 1px solid var(--border-color); background-color: #fafafa; font-family: var(--font-hindi);">
+              <strong>टिप्पणी/कमियों का विवरण:-</strong> ${adminObj.recovery_remarks}
+            </p>
+          </div>
+        `;
+      }
       // Section 18: सीमाज्ञान प्रकरण
       const seamaprakaranPending = data.seamaprakaran_total_pending !== undefined ? data.seamaprakaran_total_pending : '..........';
       if (db.pending_cases) {
@@ -9359,6 +9407,11 @@
           <p style="font-size: 0.85rem; padding: 5px; border: 1px solid var(--border-color); background-color: #fafafa; font-family: var(--font-hindi); line-height: 1.6;">
             (नियम-116) संधारित है अथवा नहीं <strong>${adminObj.rule116_status || data.rule116_status || ''}</strong>। काश्तकार/जमाकर्ता के हस्ताक्षर लिये गये हैं/नहीं लिये गये हैं <strong>${adminObj.rule116_sign || data.rule116_sign || ''}</strong>।
           </p>
+          ${adminObj.rule116_remarks ? `
+          <p style="font-size: 0.85rem; padding: 5px; border: 1px solid var(--border-color); background-color: #fafafa; font-family: var(--font-hindi); margin-top: 5px;">
+            <strong>टिप्पणी/कमियों का विवरण:-</strong> ${adminObj.rule116_remarks}
+          </p>
+          ` : ''}
         </div>
         <div class="print-section" style="page-break-inside: avoid;">
           <div class="print-section-title">20. अर्ज इरसाल (पी-34):- (नियम-117)</div>
@@ -9411,7 +9464,7 @@
           <table class="print-table">
             <tr>
               <td><strong>रजिस्टर संधारित है अथवा नहीं:</strong></td><td>${storeInv.store_reg_status || 'हाँ'}</td>
-              <td><strong>सामान का मिलान आॅ.का. से करवाने का दिनांक:</strong></td><td>${formatDateToDMY(storeInv.store_verification_date)}</td>
+              <td><strong>सामान का मिलान आॅ.का. से करवाने का दिनांक:</strong></td><td>${formatDateToDMY(storeInv.store_verification_date) || '-'}</td>
             </tr>
             <tr>
               <td><strong>पंजिका में दर्ज सामान पटवारी के पास मौजूद होने की स्थिति:</strong></td><td colspan="3">${storeInv.store_items_status || '-'}</td>
@@ -9708,6 +9761,15 @@
           }
         }
       } catch (e) { console.error('Error printing disasters section:', e); }
+      if (adminObj.accidents_remarks) {
+        html += `
+          <div class="print-section" style="page-break-inside: avoid;">
+            <p style="font-size: 0.85rem; padding: 5px; border: 1px solid var(--border-color); background-color: #fafafa; font-family: var(--font-hindi);">
+              <strong>टिप्पणी/कमियों का विवरण:-</strong> ${adminObj.accidents_remarks}
+            </p>
+          </div>
+        `;
+      }
 
       try {
         if (data.beneficiary_seeding_json) {
@@ -9804,7 +9866,7 @@
             </div>
             <div style="display: flex; justify-content: space-between; border-top: 1px solid #cbd5e1; padding-top: 15px; margin-bottom: 15px; font-size: 0.9rem;">
               <div><strong>क्रमांक:</strong> भू.अ./निरी./2025/ <strong>${dispatchNo}</strong></div>
-              <div><strong>दिनांक:</strong> <strong>${formattedDispatchDate}</strong></div>
+              <div><strong>दिनांक:</strong> <strong>${formattedDispatchDate || '..........'}</strong></div>
             </div>
             <p style="font-weight: bold; margin-bottom: 10px; font-size: 0.9rem;">प्रतिलिपि:- निम्न को सूचनार्थ एवं पालनार्थ हेतु प्रेषित है:-</p>
             <ol style="margin-left: 20px; line-height: 1.8; font-size: 0.9rem; list-style-type: decimal; padding-left: 15px;">
