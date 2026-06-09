@@ -404,7 +404,92 @@ function saveSdmReport(data) {
     initSpreadsheet();
     const ss = SpreadsheetApp.getActiveSpreadsheet();
     const sheet = ss.getSheetByName(SHEET_SDM);
-    
+
+    // Also update the corresponding Patwari report in SHEET_PATWARI with any edits made by the SDM
+    try {
+      const pSheet = ss.getSheetByName(SHEET_PATWARI);
+      const pLastRow = pSheet.getLastRow();
+      let pRowToUpdate = -1;
+      const targetPatwariId = String(data.patwari_report_id || data.report_id).trim();
+      
+      if (pLastRow > 1 && targetPatwariId !== '') {
+        const pIds = pSheet.getRange(2, 1, pLastRow - 1, 1).getValues();
+        for (let i = 0; i < pIds.length; i++) {
+          if (String(pIds[i][0]).trim() === targetPatwariId) {
+            pRowToUpdate = i + 2;
+            break;
+          }
+        }
+      }
+      
+      if (pRowToUpdate > -1) {
+        const pRowData = [
+          targetPatwariId,
+          new Date(),
+          data.mobile_no || '',
+          data.patwari_name || '-',
+          data.patwar_mandal || '-',
+          data.ilr_circle || '-',
+          data.tehsil || '-',
+          data.district || '-',
+          data.inspection_date || '',
+          data.dob || '',
+          data.hometown || '-',
+          data.qualification || '-',
+          data.first_appointment_date || '',
+          data.current_joining_date || '',
+          Number(data.basic_salary) || 0,
+          data.permanent_status || '-',
+          data.trained_status || '-',
+          data.exam_passed_status || '-',
+          data.patwar_hq || '-',
+          data.residence_type || '-',
+          data.residence_details || '-',
+          data.show_cause_details || '-',
+          data.pending_disciplinary_details || '-',
+          data.decided_disciplinary_details || '-',
+          data.village_stats_json || '[]',
+          data.inspections_json || '[]',
+          data.rule55_json || '{}',
+          data.map_khasras_json || '[]',
+          data.monthly_summary_json || '{}',
+          data.kanungo_json || '{}',
+          data.girdawari_json || '[]',
+          data.encroachments_json || '[]',
+          data.mutations_json || '[]',
+          data.court_cases_json || '[]',
+          data.other_admin_json || '{}',
+          data.rule89_json || '[]',
+          data.rule91_json || '[]',
+          data.jinswar_json || '[]',
+          data.dhal_banch_json || '[]',
+          data.recovery_json || '[]',
+          data.treasury_deposits_json || '[]',
+          data.copying_fee_json || '[]',
+          data.store_inventory_json || '[]',
+          data.passbooks_json || '[]',
+          data.non_khatedari_json || '[]',
+          data.conversion_violations_json || '[]',
+          data.conversion_compliance_json || '[]',
+          data.conversion_mutations_json || '[]',
+          data.allotment_compliance_json || '[]',
+          data.govt_allotment_json || '[]',
+          data.court_cases_compliance_json || '[]',
+          data.court_by_sections_json || '[]',
+          data.jamabandi_errors_json || '[]',
+          data.seeding_draft_json || '[]',
+          data.disasters_relief_json || '[]',
+          data.beneficiary_seeding_json || '[]',
+          data.patwari_signature || data.signature_base64 || '',
+          data.overall_remarks || '-',
+          data.prefilled_sdm_name || '-'
+        ];
+        pSheet.getRange(pRowToUpdate, 1, 1, pRowData.length).setValues([pRowData]);
+      }
+    } catch (patwariErr) {
+      console.warn("Could not sync changes to SHEET_PATWARI: " + patwariErr.toString());
+    }
+
     // Process SDM signature
     let sdmSigCellVal = '';
     if (data.sdm_signature_base64 && data.sdm_signature_base64.indexOf('data:image/png;base64,') === 0) {
