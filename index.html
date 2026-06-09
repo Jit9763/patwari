@@ -3763,16 +3763,37 @@
 
     function getGoogleDriveDirectLink(url) {
       if (!url || typeof url !== 'string') return '';
-      if (url.startsWith('data:image')) return url;
-      const dMatch = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+      let cleanUrl = url.trim();
+      
+      // If it's a sheet formula like =IMAGE("url"), extract the url inside quotes
+      if (cleanUrl.toUpperCase().startsWith('=IMAGE')) {
+        const match = cleanUrl.match(/["'](https?:\/\/[^"']+)["']/);
+        if (match) {
+          cleanUrl = match[1];
+        }
+      }
+      
+      // Replace HTML entities like &amp; with & to simplify matching
+      cleanUrl = cleanUrl.replace(/&amp;/g, '&');
+      
+      if (cleanUrl.startsWith('data:image')) return cleanUrl;
+      
+      let fileId = '';
+      const dMatch = cleanUrl.match(/\/d\/([a-zA-Z0-9_-]+)/);
       if (dMatch) {
-        return `https://drive.google.com/uc?export=view&id=${dMatch[1]}`;
+        fileId = dMatch[1];
+      } else {
+        const idMatch = cleanUrl.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+        if (idMatch) {
+          fileId = idMatch[1];
+        }
       }
-      const idMatch = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-      if (idMatch) {
-        return `https://drive.google.com/uc?export=view&id=${idMatch[1]}`;
+      
+      if (fileId) {
+        // Use the Google Drive thumbnail URL which bypasses the 2024 CORS/virus-scan block
+        return `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
       }
-      return url;
+      return cleanUrl;
     }
 
     function formatDateToDMY(dateStr) {
