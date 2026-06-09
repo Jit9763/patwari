@@ -4702,6 +4702,11 @@
         }
       }
 
+      // Auto-save progress if moving to another step in Patwari mode
+      if (!isSdmVerificationMode && currentStep !== 11) {
+        autoSavePatwariData();
+      }
+
       // Hide all steps
       for (let i = 1; i <= 11; i++) {
         document.getElementById('step' + i).classList.remove('active');
@@ -4812,6 +4817,40 @@
 
     function prevStep() {
       jumpToStep(currentStep - 1);
+    }
+
+    function autoSavePatwariData() {
+      const payload = compileFormData();
+      const sigState = signatureCanvasStates['patwariSigCanvas'];
+      const hasExistingSig = loadedReportData && (loadedReportData.signature_base64 || loadedReportData.patwari_signature);
+      
+      if (sigState.hasSigned) {
+        const canvas = document.getElementById('patwariSigCanvas');
+        payload.signature_base64 = canvas.toDataURL('image/png');
+      } else if (hasExistingSig) {
+        payload.signature_base64 = loadedReportData.signature_base64 || loadedReportData.patwari_signature;
+      }
+
+      const reqPayload = {
+        action: 'savePatwari',
+        payload: payload
+      };
+
+      callBackendAPI(reqPayload, (response) => {
+        if (response.status === 'success') {
+          console.log('Auto-saved successfully. Report ID: ' + response.report_id);
+          loadedReportId = response.report_id;
+          if (loadedReportData) {
+            loadedReportData.report_id = response.report_id;
+          } else {
+            loadedReportData = { report_id: response.report_id };
+          }
+        } else {
+          console.warn('Auto-save failed:', response.message);
+        }
+      }, (error) => {
+        console.error('Auto-save network/server error:', error);
+      });
     }
 
     function validateCurrentStepFields() {
@@ -8866,28 +8905,28 @@
             </thead>
             <tbody>
               <tr>
-                <td>जनवरी</td><td>${monthly.jan || '-'}</td>
-                <td>जुलाई</td><td>${monthly.jul || '-'}</td>
+                <td>जनवरी</td><td>${formatDateToDMY(monthly.jan) || '-'}</td>
+                <td>जुलाई</td><td>${formatDateToDMY(monthly.jul) || '-'}</td>
               </tr>
               <tr>
-                <td>फरवरी</td><td>${monthly.feb || '-'}</td>
-                <td>अगस्त</td><td>${monthly.aug || '-'}</td>
+                <td>फरवरी</td><td>${formatDateToDMY(monthly.feb) || '-'}</td>
+                <td>अगस्त</td><td>${formatDateToDMY(monthly.aug) || '-'}</td>
               </tr>
               <tr>
-                <td>मार्च</td><td>${monthly.mar || '-'}</td>
-                <td>सितम्बर</td><td>${monthly.sep || '-'}</td>
+                <td>मार्च</td><td>${formatDateToDMY(monthly.mar) || '-'}</td>
+                <td>सितम्बर</td><td>${formatDateToDMY(monthly.sep) || '-'}</td>
               </tr>
               <tr>
-                <td>अप्रेल</td><td>${monthly.apr || '-'}</td>
-                <td>अक्टूबर</td><td>${monthly.oct || '-'}</td>
+                <td>अप्रेल</td><td>${formatDateToDMY(monthly.apr) || '-'}</td>
+                <td>अक्टूबर</td><td>${formatDateToDMY(monthly.oct) || '-'}</td>
               </tr>
               <tr>
-                <td>मई</td><td>${monthly.may || '-'}</td>
-                <td>नवम्बर</td><td>${monthly.nov || '-'}</td>
+                <td>मई</td><td>${formatDateToDMY(monthly.may) || '-'}</td>
+                <td>नवम्बर</td><td>${formatDateToDMY(monthly.nov) || '-'}</td>
               </tr>
               <tr>
-                <td>जून</td><td>${monthly.jun || '-'}</td>
-                <td>दिसम्बर</td><td>${monthly.dec || '-'}</td>
+                <td>जून</td><td>${formatDateToDMY(monthly.jun) || '-'}</td>
+                <td>दिसम्बर</td><td>${formatDateToDMY(monthly.dec) || '-'}</td>
               </tr>
             </tbody>
           </table>
@@ -9878,19 +9917,25 @@
 
       // Signatures
       let pSigSrc = '';
-      if (typeof data.signature_base64 === 'string' && data.signature_base64) {
-        pSigSrc = data.signature_base64;
-      } else if (typeof data.patwari_signature === 'string' && data.patwari_signature) {
-        const match = data.patwari_signature.match(/id=([a-zA-Z0-9_-]+)/);
-        pSigSrc = match ? `https://drive.google.com/uc?export=view&id=${match[1]}` : (data.patwari_signature.indexOf('data:image') === 0 ? data.patwari_signature : '');
+      let rawSig = data.signature_base64 || data.patwari_signature || '';
+      if (typeof rawSig === 'string' && rawSig) {
+        if (rawSig.includes('id=')) {
+          const match = rawSig.match(/id=([a-zA-Z0-9_-]+)/);
+          pSigSrc = match ? `https://drive.google.com/uc?export=view&id=${match[1]}` : '';
+        } else if (rawSig.startsWith('data:image') || rawSig.startsWith('http')) {
+          pSigSrc = rawSig;
+        }
       }
 
       let sSigSrc = '';
-      if (typeof data.sdm_signature_base64 === 'string' && data.sdm_signature_base64) {
-        sSigSrc = data.sdm_signature_base64;
-      } else if (typeof data.sdm_signature === 'string' && data.sdm_signature) {
-        const match = data.sdm_signature.match(/id=([a-zA-Z0-9_-]+)/);
-        sSigSrc = match ? `https://drive.google.com/uc?export=view&id=${match[1]}` : (data.sdm_signature.indexOf('data:image') === 0 ? data.sdm_signature : '');
+      let rawSdmSig = data.sdm_signature_base64 || data.sdm_signature || '';
+      if (typeof rawSdmSig === 'string' && rawSdmSig) {
+        if (rawSdmSig.includes('id=')) {
+          const match = rawSdmSig.match(/id=([a-zA-Z0-9_-]+)/);
+          sSigSrc = match ? `https://drive.google.com/uc?export=view&id=${match[1]}` : '';
+        } else if (rawSdmSig.startsWith('data:image') || rawSdmSig.startsWith('http')) {
+          sSigSrc = rawSdmSig;
+        }
       }
 
       const hidePatwariSigClass = (mode === 'sdm' || mode === 'admin_verified') ? 'no-print' : '';

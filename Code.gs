@@ -154,21 +154,28 @@ function getPatwariReportByMobile(mobile) {
       return { status: 'not_found', message: 'कोई डेटा नहीं मिला।' };
     }
     
-    const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+    const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0].map(h => String(h).trim());
     const data = sheet.getRange(2, 1, lastRow - 1, sheet.getLastColumn()).getValues();
     const formulas = sheet.getRange(2, 1, lastRow - 1, sheet.getLastColumn()).getFormulas();
     
+    const mobileColIdx = headers.indexOf('Mobile Number');
+    if (mobileColIdx === -1) {
+      return { status: 'not_found', message: 'मोबाइल नंबर का कॉलम नहीं मिला।' };
+    }
+
     // Find the latest record matching the mobile number (searching backwards)
     let foundRow = null;
     let foundFormulas = null;
     const targetMobile = String(mobile).trim();
     
-    for (let i = data.length - 1; i >= 0; i--) {
-      const rowMobile = String(data[i][2]).trim();
-      if (rowMobile === targetMobile) {
-        foundRow = data[i];
-        foundFormulas = formulas[i];
-        break;
+    if (targetMobile !== '') {
+      for (let i = data.length - 1; i >= 0; i--) {
+        const rowMobile = String(data[i][mobileColIdx]).trim();
+        if (rowMobile === targetMobile) {
+          foundRow = data[i];
+          foundFormulas = formulas[i];
+          break;
+        }
       }
     }
     
@@ -298,27 +305,27 @@ function savePatwariReport(data) {
       reportId,
       new Date(),
       data.mobile_no || '',
-      data.patwari_name || '',
-      data.patwar_mandal || '',
-      data.ilr_circle || '',
-      data.tehsil || '',
-      data.district || '',
+      data.patwari_name || '-',
+      data.patwar_mandal || '-',
+      data.ilr_circle || '-',
+      data.tehsil || '-',
+      data.district || '-',
       data.inspection_date || '',
       data.dob || '',
-      data.hometown || '',
-      data.qualification || '',
+      data.hometown || '-',
+      data.qualification || '-',
       data.first_appointment_date || '',
       data.current_joining_date || '',
       Number(data.basic_salary) || 0,
-      data.permanent_status || '',
-      data.trained_status || '',
-      data.exam_passed_status || '',
-      data.patwar_hq || '',
-      data.residence_type || '',
-      data.residence_details || '',
-      data.show_cause_details || '',
-      data.pending_disciplinary_details || '',
-      data.decided_disciplinary_details || '',
+      data.permanent_status || '-',
+      data.trained_status || '-',
+      data.exam_passed_status || '-',
+      data.patwar_hq || '-',
+      data.residence_type || '-',
+      data.residence_details || '-',
+      data.show_cause_details || '-',
+      data.pending_disciplinary_details || '-',
+      data.decided_disciplinary_details || '-',
       data.village_stats_json || '[]',
       data.inspections_json || '[]',
       data.rule55_json || '{}',
@@ -354,8 +361,8 @@ function savePatwariReport(data) {
       data.beneficiary_seeding_json || '[]',
       // Signatures
       sigCellVal || data.signature_base64 || '',
-      data.overall_remarks || '',
-      data.prefilled_sdm_name || ''
+      data.overall_remarks || '-',
+      data.prefilled_sdm_name || '-'
     ];
     
     // Check if report with same reportId already exists to prevent duplicates
@@ -410,34 +417,34 @@ function saveSdmReport(data) {
       sdmReportId,
       data.patwari_report_id || '',
       new Date(),
-      data.sdm_name || '',
+      data.sdm_name || '-',
       data.sdm_designation || 'Sub Divisional Magistrate',
-      data.sdm_comments || '',
+      data.sdm_comments || '-',
       sdmSigCellVal || data.sdm_signature_base64 || '',
       
       // Fields copied from Patwari and potentially edited by SDM
       data.mobile_no || '',
-      data.patwari_name || '',
-      data.patwar_mandal || '',
-      data.ilr_circle || '',
-      data.tehsil || '',
-      data.district || '',
+      data.patwari_name || '-',
+      data.patwar_mandal || '-',
+      data.ilr_circle || '-',
+      data.tehsil || '-',
+      data.district || '-',
       data.inspection_date || '',
       data.dob || '',
-      data.hometown || '',
-      data.qualification || '',
+      data.hometown || '-',
+      data.qualification || '-',
       data.first_appointment_date || '',
       data.current_joining_date || '',
       Number(data.basic_salary) || 0,
-      data.permanent_status || '',
-      data.trained_status || '',
-      data.exam_passed_status || '',
-      data.patwar_hq || '',
-      data.residence_type || '',
-      data.residence_details || '',
-      data.show_cause_details || '',
-      data.pending_disciplinary_details || '',
-      data.decided_disciplinary_details || '',
+      data.permanent_status || '-',
+      data.trained_status || '-',
+      data.exam_passed_status || '-',
+      data.patwar_hq || '-',
+      data.residence_type || '-',
+      data.residence_details || '-',
+      data.show_cause_details || '-',
+      data.pending_disciplinary_details || '-',
+      data.decided_disciplinary_details || '-',
       data.village_stats_json || '[]',
       data.inspections_json || '[]',
       data.rule55_json || '{}',
@@ -473,8 +480,8 @@ function saveSdmReport(data) {
       data.beneficiary_seeding_json || '[]',
       // Patwari Signature and remarks
       data.patwari_signature || '', 
-      data.overall_remarks || '',
-      data.prefilled_sdm_name || ''
+      data.overall_remarks || '-',
+      data.prefilled_sdm_name || '-'
     ];
     
     // Check if report with same sdmReportId already exists to prevent duplicates
