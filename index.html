@@ -3330,6 +3330,90 @@
 
         <div id="complianceSummaryContainer"></div>
 
+        <!-- CUSTOMIZED EXCEL EXPORT CENTER -->
+        <div class="card" style="margin-top: 20px; border-top: 3px solid #059669;">
+          <h3 style="font-family: var(--font-hindi); margin-bottom: 15px; color: var(--text-dark); display:flex; align-items:center; gap:8px;">
+            📂 कस्टमाइज्ड डेटा एक्सपोर्ट सेंटर (Customized Excel Export Center)
+          </h3>
+          <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 15px;">
+            जिन कॉलम का डेटा आप एक्सेल में डाउनलोड करना चाहते हैं, उन्हें चुनें। फिर नीचे दिए गए बटनों से वांछित फॉर्मेट की एक्सेल फाइल डाउनलोड करें:
+          </p>
+          
+          <div style="margin-bottom: 15px; display: flex; gap: 10px;">
+            <button type="button" class="btn btn-secondary" onclick="toggleAllExportCheckboxes(true)" style="padding: 4px 8px; font-size: 0.75rem;">✔️ सभी चुनें (Select All)</button>
+            <button type="button" class="btn btn-secondary" onclick="toggleAllExportCheckboxes(false)" style="padding: 4px 8px; font-size: 0.75rem;">❌ सभी हटाएँ (Deselect All)</button>
+          </div>
+          
+          <div class="export-checkbox-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; margin-bottom: 20px;">
+            <!-- Category 1: General Details -->
+            <div style="border: 1px solid #e2e8f0; padding: 12px; border-radius: 6px; background: #f8fafc;">
+              <h5 style="margin-top:0; margin-bottom:10px; border-bottom:1px solid #cbd5e1; padding-bottom:5px; color: #0f172a;">1. सामान्य जानकारी</h5>
+              <div style="display:flex; flex-direction:column; gap:6px; font-size:0.8rem;">
+                <label><input type="checkbox" class="export-col-chk" value="report_id" checked> रिपोर्ट आईडी (Report ID)</label>
+                <label><input type="checkbox" class="export-col-chk" value="timestamp" checked> दिनांक व समय (Timestamp)</label>
+                <label><input type="checkbox" class="export-col-chk" value="patwari_name" checked> पटवारी का नाम (Patwari Name)</label>
+                <label><input type="checkbox" class="export-col-chk" value="mobile_no" checked> मोबाइल नंबर (Mobile No)</label>
+                <label><input type="checkbox" class="export-col-chk" value="patwar_mandal" checked> पटवार मण्डल (Patwar Mandal)</label>
+                <label><input type="checkbox" class="export-col-chk" value="ilr_circle" checked> ILR वृत्त (ILR Circle)</label>
+                <label><input type="checkbox" class="export-col-chk" value="tehsil" checked> तहसील (Tehsil)</label>
+                <label><input type="checkbox" class="export-col-chk" value="district" checked> जिला (District)</label>
+                <label><input type="checkbox" class="export-col-chk" value="inspection_date" checked> निरीक्षण दिनांक (Inspection Date)</label>
+                <label><input type="checkbox" class="export-col-chk" value="dob"> जन्म तिथि (DOB)</label>
+                <label><input type="checkbox" class="export-col-chk" value="hometown"> गृह जिला (Hometown)</label>
+                <label><input type="checkbox" class="export-col-chk" value="basic_salary"> मूल वेतन (Basic Salary)</label>
+              </div>
+            </div>
+            
+            <!-- Category 2: Village Stats -->
+            <div style="border: 1px solid #e2e8f0; padding: 12px; border-radius: 6px; background: #f8fafc;">
+              <h5 style="margin-top:0; margin-bottom:10px; border-bottom:1px solid #cbd5e1; padding-bottom:5px; color: #0f172a;">2. ग्राम-वार सांख्यिकी</h5>
+              <div style="display:flex; flex-direction:column; gap:6px; font-size:0.8rem;">
+                <label><input type="checkbox" class="export-col-chk" value="village_name" checked> ग्राम का नाम (Village Name)</label>
+                <label><input type="checkbox" class="export-col-chk" value="total_khata" checked> कुल खाते (Total Khata)</label>
+                <label><input type="checkbox" class="export-col-chk" value="total_khasra" checked> कुल खसरा (Total Khasra)</label>
+                <label><input type="checkbox" class="export-col-chk" value="total_area" checked> कुल क्षेत्रफल (Total Area)</label>
+                <label><input type="checkbox" class="export-col-chk" value="v_lagan" checked> वार्षिक लगान (Lagan)</label>
+                <label><input type="checkbox" class="export-col-chk" value="v_cultivable" checked> कृषि योग्य क्षेत्रफल (Cultivable Area)</label>
+                <label><input type="checkbox" class="export-col-chk" value="v_sivaychak" checked> सिवायचक क्षेत्रफल (Sivaychak Area)</label>
+                <label><input type="checkbox" class="export-col-chk" value="v_pasture" checked> चारागाह क्षेत्रफल (Pasture Area)</label>
+              </div>
+            </div>
+
+            <!-- Category 3: Mutations & Registry -->
+            <div style="border: 1px solid #e2e8f0; padding: 12px; border-radius: 6px; background: #f8fafc;">
+              <h5 style="margin-top:0; margin-bottom:10px; border-bottom:1px solid #cbd5e1; padding-bottom:5px; color: #0f172a;">3. नामांतरकरण (Mutations)</h5>
+              <div style="display:flex; flex-direction:column; gap:6px; font-size:0.8rem;">
+                <label><input type="checkbox" class="export-col-chk" value="mu_filed" checked> कुल दर्ज (Filed)</label>
+                <label><input type="checkbox" class="export-col-chk" value="mu_decided" checked> स्वीकृत नामांतरकरण (Decided)</label>
+                <label><input type="checkbox" class="export-col-chk" value="mu_pending" checked> लंबित नामांतरकरण (Pending)</label>
+                <label><input type="checkbox" class="export-col-chk" value="mut_illegal" checked> नियम विरुद्ध स्वीकृत (Illegal)</label>
+                <label><input type="checkbox" class="export-col-chk" value="mut_duplicate" checked> दोहरे दर्ज (Duplicate)</label>
+                <label><input type="checkbox" class="export-col-chk" value="mut_glmac" checked> राजकीय भूमि पर नामांतरकरण (Govt Mutation)</label>
+              </div>
+            </div>
+
+            <!-- Category 4: Recovery & Encroachment -->
+            <div style="border: 1px solid #e2e8f0; padding: 12px; border-radius: 6px; background: #f8fafc;">
+              <h5 style="margin-top:0; margin-bottom:10px; border-bottom:1px solid #cbd5e1; padding-bottom:5px; color: #0f172a;">4. वसूली व अतिक्रमण</h5>
+              <div style="display:flex; flex-direction:column; gap:6px; font-size:0.8rem;">
+                <label><input type="checkbox" class="export-col-chk" value="recovery_not_started_count" checked> वसूली जो शुरू नहीं हुई (Not Started)</label>
+                <label><input type="checkbox" class="export-col-chk" value="seamaprakaran_total_pending" checked> लंबित सीमाज्ञान (Pending Seamaprakaran)</label>
+                <label><input type="checkbox" class="export-col-chk" value="recovery_count_mact" checked> MACT वसूली (MACT Recovery)</label>
+                <label><input type="checkbox" class="export-col-chk" value="recovery_count_lr" checked> LR वसूली (LR Recovery)</label>
+                <label><input type="checkbox" class="export-col-chk" value="recovery_count_pdr" checked> PDR वसूली (PDR Recovery)</label>
+                <label><input type="checkbox" class="export-col-chk" value="recovery_count_irr" checked> सिंचाई वसूली (Irrigation Recovery)</label>
+                <label><input type="checkbox" class="export-col-chk" value="recovery_count_audit" checked> ऑडिट आक्षेप वसूली (Audit Recovery)</label>
+              </div>
+            </div>
+          </div>
+
+          <div style="gap:15px; display: flex; flex-wrap: wrap; justify-content: space-between; border-top: 1px solid #e2e8f0; padding-top: 15px;">
+            <button type="button" class="btn btn-primary" onclick="exportPatwariWiseExcel()" style="flex: 1 1 200px; justify-content:center; background:#059669; font-size: 0.9rem; padding: 12px 10px;">📥 पटवारी-वार एक्सेल डाउनलोड</button>
+            <button type="button" class="btn btn-primary" onclick="exportGramWiseExcel()" style="flex: 1 1 200px; justify-content:center; background:#0284c7; font-size: 0.9rem; padding: 12px 10px;">📥 ग्राम-वार एक्सेल डाउनलोड</button>
+            <button type="button" class="btn btn-primary" onclick="exportOverallExcel()" style="flex: 1 1 200px; justify-content:center; background:#4f46e5; font-size: 0.9rem; padding: 12px 10px;">📥 समग्र एक्सेल डाउनलोड</button>
+          </div>
+        </div>
+
         <!-- PRINTABLE REPORTS CENTER -->
         <div class="card" style="margin-top: 20px; border-top: 3px solid var(--accent-color);">
           <h3 style="font-family: var(--font-hindi); margin-bottom: 15px; color: var(--text-dark); display:flex; align-items:center; gap:8px;">
@@ -4770,9 +4854,13 @@
           // Show SDM Verification Fields
           document.getElementById('sdmVerificationFields').style.display = 'block';
 
-          // Prefill SDM name if it exists
           if (loadedReportData) {
-            document.getElementById('sdm_name').value = loadedReportData.sdm_name || loadedReportData.prefilled_sdm_name || '';
+            const validSdmName = (loadedReportData.sdm_name && loadedReportData.sdm_name !== '-')
+              ? loadedReportData.sdm_name
+              : ((loadedReportData.prefilled_sdm_name && loadedReportData.prefilled_sdm_name !== '-')
+                ? loadedReportData.prefilled_sdm_name
+                : 'उपखंड अधिकारी भिनाय');
+            document.getElementById('sdm_name').value = validSdmName;
           }
 
           setTimeout(() => {
@@ -5050,6 +5138,7 @@
         accidents_remarks: 'दुर्घटना/डूबने/विद्युत आपदा राहत के सभी प्रकरणों में समय पर सहायता राशि स्वीकृत कराई गई है।',
         seeding_remarks: 'पीएम किसान योजना के अंतर्गत सीडिंग व फार्मर रजिस्ट्री का कार्य लगभग पूर्ण हो चुका है।',
         conclusion_text: 'निरीक्षण के दौरान पटवार हल्का का कार्य संतोषजनक पाया गया। अभिलेखों का संधारण नियमानुसार अद्यतन है।',
+        prefilled_sdm_name: 'उपखंड अधिकारी भिनाय',
         sdm_name: 'उपखंड अधिकारी भिनाय',
         sdm_comments: 'पटवार मण्डल भिनाय का निरीक्षण किया गया। कार्य संतोषजनक है, कमियों के सुधार हेतु निर्देशित किया गया।',
         sdm_dispatch_tehsil: 'भिनाय',
@@ -5069,7 +5158,13 @@
       };
 
       setVal('mobile_no', data.mobile_no);
-      setVal('prefilled_sdm_name', data.prefilled_sdm_name || data.sdm_name);
+      const validPrefilledSdmName = (data.prefilled_sdm_name && data.prefilled_sdm_name !== '-')
+        ? data.prefilled_sdm_name
+        : ((data.sdm_name && data.sdm_name !== '-')
+          ? data.sdm_name
+          : 'उपखंड अधिकारी भिनाय');
+      setVal('prefilled_sdm_name', validPrefilledSdmName);
+      setVal('sdm_name', (data.sdm_name && data.sdm_name !== '-') ? data.sdm_name : validPrefilledSdmName);
       setVal('patwari_name', data.patwari_name);
       setVal('patwar_mandal', data.patwar_mandal);
       setVal('ilr_circle', data.ilr_circle);
@@ -7159,6 +7254,401 @@
       setTimeout(() => { URL.revokeObjectURL(url); }, 1000);
     }
 
+    // ==========================================
+    // CUSTOMIZED EXCEL EXPORT FUNCTIONS
+    // ==========================================
+    const COLUMN_MAPPING = {
+      report_id: 'रिपोर्ट आईडी (Report ID)',
+      timestamp: 'दिनांक व समय (Timestamp)',
+      patwari_name: 'पटवारी का नाम (Patwari Name)',
+      mobile_no: 'मोबाइल नंबर (Mobile No)',
+      patwar_mandal: 'पटवार मण्डल (Patwar Mandal)',
+      ilr_circle: 'ILR वृत्त (ILR Circle)',
+      tehsil: 'तहसील (Tehsil)',
+      district: 'जिला (District)',
+      inspection_date: 'निरीक्षण दिनांक (Inspection Date)',
+      dob: 'जन्म तिथि (DOB)',
+      hometown: 'गृह जिला (Hometown)',
+      basic_salary: 'मूल वेतन (Basic Salary)',
+      
+      village_name: 'ग्राम का नाम (Village Name)',
+      total_khata: 'कुल खाते (Total Khata)',
+      total_khasra: 'कुल खसरा (Total Khasra)',
+      total_area: 'कुल क्षेत्रफल (Total Area)',
+      v_lagan: 'वार्षिक लगान (Lagan)',
+      v_cultivable: 'कृषि योग्य क्षेत्रफल (Cultivable Area)',
+      v_sivaychak: 'सिवायचक क्षेत्रफल (Sivaychak Area)',
+      v_pasture: 'चारागाह क्षेत्रफल (Pasture Area)',
+
+      mu_filed: 'कुल दर्ज नामांतरकरण (Filed)',
+      mu_decided: 'स्वीकृत नामांतरकरण (Decided)',
+      mu_pending: 'लंबित नामांतरकरण (Pending)',
+      mut_illegal: 'नियम विरुद्ध स्वीकृत (Illegal)',
+      mut_duplicate: 'दोहरे दर्ज (Duplicate)',
+      mut_glmac: 'राजकीय भूमि पर नामांतरकरण (Govt Mutation)',
+
+      recovery_not_started_count: 'वसूली प्रक्रिया जो शुरू नहीं हुई (Not Started)',
+      seamaprakaran_total_pending: 'लंबित सीमाज्ञान प्रकरण (Pending Seamaprakaran)',
+      recovery_count_mact: 'MACT वसूली (MACT Recovery)',
+      recovery_count_lr: 'LR वसूली (LR Recovery)',
+      recovery_count_pdr: 'PDR वसूली (PDR Recovery)',
+      recovery_count_irr: 'सिंचाई वसूली (Irrigation Recovery)',
+      recovery_count_audit: 'ऑडिट आक्षेप वसूली (Audit Recovery)'
+    };
+
+    function toggleAllExportCheckboxes(checked) {
+      document.querySelectorAll('.export-col-chk').forEach(chk => {
+        chk.checked = checked;
+      });
+    }
+
+    function exportPatwariWiseExcel() {
+      if (!adminFetchedData || !adminFetchedData.patwari_reports || adminFetchedData.patwari_reports.length === 0) {
+        alert('कोई डेटा उपलब्ध नहीं है।');
+        return;
+      }
+      
+      const selectedCols = Array.from(document.querySelectorAll('.export-col-chk:checked')).map(el => el.value);
+      if (selectedCols.length === 0) {
+        alert('कृपया कम से कम एक कॉलम चुनें।');
+        return;
+      }
+
+      const rows = [];
+      adminFetchedData.patwari_reports.forEach(r => {
+        const row = {};
+        
+        let villages = [];
+        try { villages = JSON.parse(r.village_stats_json || '[]'); } catch(e){}
+        
+        let mutList = [];
+        let mutObj = {};
+        try { 
+          mutObj = JSON.parse(r.mutations_json || '{}');
+          mutList = Array.isArray(mutObj.village_table) ? mutObj.village_table : (Array.isArray(mutObj) ? mutObj : []);
+        } catch(e){}
+
+        let adminObj = {};
+        try { adminObj = JSON.parse(r.other_admin_json || '{}'); } catch(e){}
+
+        let courtObj = {};
+        try { courtObj = JSON.parse(r.court_cases_json || '{}'); } catch(e){}
+        const courtSummary = courtObj.summary || {};
+
+        selectedCols.forEach(col => {
+          const headerName = COLUMN_MAPPING[col] || col;
+          
+          if (col in r) {
+            row[headerName] = r[col];
+          } else if (col in adminObj) {
+            row[headerName] = adminObj[col];
+          } else if (col === 'village_name') {
+            row[headerName] = villages.map(v => v.v_name || '').filter(Boolean).join(', ');
+          } else if (col === 'total_khata') {
+            row[headerName] = villages.reduce((sum, v) => sum + Number(v.v_khata || 0), 0);
+          } else if (col === 'total_khasra') {
+            row[headerName] = villages.reduce((sum, v) => sum + Number(v.v_khasra || 0), 0);
+          } else if (col === 'total_area') {
+            row[headerName] = villages.reduce((sum, v) => sum + Number(v.v_area || 0), 0);
+          } else if (col === 'v_lagan') {
+            row[headerName] = villages.reduce((sum, v) => sum + Number(v.v_lagan || 0), 0);
+          } else if (col === 'v_cultivable') {
+            row[headerName] = villages.reduce((sum, v) => sum + Number(v.v_cultivable || 0), 0);
+          } else if (col === 'v_sivaychak') {
+            row[headerName] = villages.reduce((sum, v) => sum + Number(v.v_sivaychak || 0), 0);
+          } else if (col === 'v_pasture') {
+            row[headerName] = villages.reduce((sum, v) => sum + Number(v.v_pasture || 0), 0);
+          } else if (col === 'mu_filed') {
+            row[headerName] = mutList.reduce((sum, v) => sum + Number(v.mu_filed || 0), 0);
+          } else if (col === 'mu_decided') {
+            row[headerName] = mutList.reduce((sum, v) => sum + Number(v.mu_decided || 0), 0);
+          } else if (col === 'mu_pending') {
+            row[headerName] = mutList.reduce((sum, v) => sum + Number(v.mu_pending || 0), 0);
+          } else if (col === 'mut_illegal') {
+            row[headerName] = mutObj.sec_12_4?.mut_illegal || 'कोई नहीं';
+          } else if (col === 'mut_duplicate') {
+            row[headerName] = mutObj.sec_12_4?.mut_duplicate || 'कोई नहीं';
+          } else if (col === 'mut_glmac') {
+            row[headerName] = mutObj.sec_12_4?.mut_glmac || 'कोई नहीं';
+          } else if (col === 'recovery_count_mact') {
+            row[headerName] = Number(courtSummary.mact || 0);
+          } else if (col === 'recovery_count_lr') {
+            row[headerName] = Number(courtSummary.lr || 0);
+          } else if (col === 'recovery_count_pdr') {
+            row[headerName] = Number(courtSummary.pdr || 0);
+          } else if (col === 'recovery_count_irr') {
+            row[headerName] = Number(courtSummary.irr || 0);
+          } else if (col === 'recovery_count_audit') {
+            row[headerName] = Number(courtSummary.audit || 0);
+          }
+        });
+        rows.push(row);
+      });
+
+      const ws = XLSX.utils.json_to_sheet(rows);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Patwari_Wise_Data');
+      downloadWorkbook(wb, 'Patwari_Wise_Report.xlsx');
+    }
+
+    function exportGramWiseExcel() {
+      if (!adminFetchedData || !adminFetchedData.patwari_reports || adminFetchedData.patwari_reports.length === 0) {
+        alert('कोई डेटा उपलब्ध नहीं है।');
+        return;
+      }
+      
+      const selectedCols = Array.from(document.querySelectorAll('.export-col-chk:checked')).map(el => el.value);
+      if (selectedCols.length === 0) {
+        alert('कृपया कम से कम एक कॉलम चुनें।');
+        return;
+      }
+
+      const rows = [];
+      adminFetchedData.patwari_reports.forEach(r => {
+        let villages = [];
+        try { villages = JSON.parse(r.village_stats_json || '[]'); } catch(e){}
+        
+        let mutList = [];
+        let mutObj = {};
+        try { 
+          mutObj = JSON.parse(r.mutations_json || '{}');
+          mutList = Array.isArray(mutObj.village_table) ? mutObj.village_table : (Array.isArray(mutObj) ? mutObj : []);
+        } catch(e){}
+
+        let adminObj = {};
+        try { adminObj = JSON.parse(r.other_admin_json || '{}'); } catch(e){}
+
+        let courtObj = {};
+        try { courtObj = JSON.parse(r.court_cases_json || '{}'); } catch(e){}
+        const courtSummary = courtObj.summary || {};
+
+        villages.forEach(v => {
+          const row = {};
+          const vName = v.v_name || '';
+          const vMut = mutList.find(m => (m.mu_village || '').trim() === vName.trim()) || {};
+
+          selectedCols.forEach(col => {
+            const headerName = COLUMN_MAPPING[col] || col;
+
+            if (col in r) {
+              row[headerName] = r[col];
+            } else if (col in adminObj) {
+              row[headerName] = adminObj[col];
+            } else if (col === 'village_name') {
+              row[headerName] = vName;
+            } else if (col === 'total_khata') {
+              row[headerName] = Number(v.v_khata || 0);
+            } else if (col === 'total_khasra') {
+              row[headerName] = Number(v.v_khasra || 0);
+            } else if (col === 'total_area') {
+              row[headerName] = Number(v.v_area || 0);
+            } else if (col === 'v_lagan') {
+              row[headerName] = Number(v.v_lagan || 0);
+            } else if (col === 'v_cultivable') {
+              row[headerName] = Number(v.v_cultivable || 0);
+            } else if (col === 'v_sivaychak') {
+              row[headerName] = Number(v.v_sivaychak || 0);
+            } else if (col === 'v_pasture') {
+              row[headerName] = Number(v.v_pasture || 0);
+            } else if (col === 'mu_filed') {
+              row[headerName] = Number(vMut.mu_filed || 0);
+            } else if (col === 'mu_decided') {
+              row[headerName] = Number(vMut.mu_decided || 0);
+            } else if (col === 'mu_pending') {
+              row[headerName] = Number(vMut.mu_pending || 0);
+            } else if (col === 'mut_illegal') {
+              row[headerName] = mutObj.sec_12_4?.mut_illegal || 'कोई नहीं';
+            } else if (col === 'mut_duplicate') {
+              row[headerName] = mutObj.sec_12_4?.mut_duplicate || 'कोई नहीं';
+            } else if (col === 'mut_glmac') {
+              row[headerName] = mutObj.sec_12_4?.mut_glmac || 'कोई नहीं';
+            } else if (col === 'recovery_count_mact') {
+              row[headerName] = Number(courtSummary.mact || 0);
+            } else if (col === 'recovery_count_lr') {
+              row[headerName] = Number(courtSummary.lr || 0);
+            } else if (col === 'recovery_count_pdr') {
+              row[headerName] = Number(courtSummary.pdr || 0);
+            } else if (col === 'recovery_count_irr') {
+              row[headerName] = Number(courtSummary.irr || 0);
+            } else if (col === 'recovery_count_audit') {
+              row[headerName] = Number(courtSummary.audit || 0);
+            }
+          });
+          rows.push(row);
+        });
+      });
+
+      const ws = XLSX.utils.json_to_sheet(rows);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Gram_Wise_Data');
+      downloadWorkbook(wb, 'Gram_Wise_Report.xlsx');
+    }
+
+    function exportOverallExcel() {
+      if (!adminFetchedData || !adminFetchedData.patwari_reports || adminFetchedData.patwari_reports.length === 0) {
+        alert('कोई डेटा उपलब्ध नहीं है।');
+        return;
+      }
+
+      const selectedCols = Array.from(document.querySelectorAll('.export-col-chk:checked')).map(el => el.value);
+      if (selectedCols.length === 0) {
+        alert('कृपया कम से कम एक कॉलम चुनें।');
+        return;
+      }
+
+      const wb = XLSX.utils.book_new();
+
+      // Sheet 1: General Details
+      const generalRows = [];
+      const generalCols = selectedCols.filter(col => [
+        'report_id', 'timestamp', 'patwari_name', 'mobile_no', 'patwar_mandal', 
+        'ilr_circle', 'tehsil', 'district', 'inspection_date', 'dob', 'hometown', 'basic_salary'
+      ].includes(col));
+      
+      if (generalCols.length > 0) {
+        adminFetchedData.patwari_reports.forEach(r => {
+          const row = {};
+          generalCols.forEach(col => {
+            row[COLUMN_MAPPING[col] || col] = r[col];
+          });
+          generalRows.push(row);
+        });
+        const wsGeneral = XLSX.utils.json_to_sheet(generalRows);
+        XLSX.utils.book_append_sheet(wb, wsGeneral, 'General_Details');
+      }
+
+      // Sheet 2: Village Stats
+      const villageRows = [];
+      const villageCols = selectedCols.filter(col => [
+        'village_name', 'total_khata', 'total_khasra', 'total_area', 'v_lagan', 'v_cultivable', 'v_sivaychak', 'v_pasture'
+      ].includes(col));
+      
+      if (villageCols.length > 0) {
+        adminFetchedData.patwari_reports.forEach(r => {
+          let villages = [];
+          try { villages = JSON.parse(r.village_stats_json || '[]'); } catch(e){}
+          villages.forEach(v => {
+            const row = {
+              'रिपोर्ट आईडी (Report ID)': r.report_id,
+              'पटवारी का नाम (Patwari)': r.patwari_name
+            };
+            villageCols.forEach(col => {
+              const headerName = COLUMN_MAPPING[col] || col;
+              if (col === 'village_name') row[headerName] = v.v_name || '';
+              else if (col === 'total_khata') row[headerName] = Number(v.v_khata || 0);
+              else if (col === 'total_khasra') row[headerName] = Number(v.v_khasra || 0);
+              else if (col === 'total_area') row[headerName] = Number(v.v_area || 0);
+              else if (col === 'v_lagan') row[headerName] = Number(v.v_lagan || 0);
+              else if (col === 'v_cultivable') row[headerName] = Number(v.v_cultivable || 0);
+              else if (col === 'v_sivaychak') row[headerName] = Number(v.v_sivaychak || 0);
+              else if (col === 'v_pasture') row[headerName] = Number(v.v_pasture || 0);
+            });
+            villageRows.push(row);
+          });
+        });
+        const wsVillage = XLSX.utils.json_to_sheet(villageRows);
+        XLSX.utils.book_append_sheet(wb, wsVillage, 'Village_Stats');
+      }
+
+      // Sheet 3: Mutations
+      const mutationRows = [];
+      const mutationCols = selectedCols.filter(col => [
+        'mu_filed', 'mu_decided', 'mu_pending', 'mut_illegal', 'mut_duplicate', 'mut_glmac'
+      ].includes(col));
+      
+      if (mutationCols.length > 0) {
+        adminFetchedData.patwari_reports.forEach(r => {
+          let mutList = [];
+          let mutObj = {};
+          try { 
+            mutObj = JSON.parse(r.mutations_json || '{}');
+            mutList = Array.isArray(mutObj.village_table) ? mutObj.village_table : (Array.isArray(mutObj) ? mutObj : []);
+          } catch(e){}
+          
+          mutList.forEach(m => {
+            const row = {
+              'रिपोर्ट आईडी (Report ID)': r.report_id,
+              'पटवारी का नाम (Patwari)': r.patwari_name,
+              'ग्राम का नाम (Village)': m.mu_village || ''
+            };
+            mutationCols.forEach(col => {
+              const headerName = COLUMN_MAPPING[col] || col;
+              if (col === 'mu_filed') row[headerName] = Number(m.mu_filed || 0);
+              else if (col === 'mu_decided') row[headerName] = Number(m.mu_decided || 0);
+              else if (col === 'mu_pending') row[headerName] = Number(m.mu_pending || 0);
+              else if (col === 'mut_illegal') row[headerName] = mutObj.sec_12_4?.mut_illegal || 'कोई नहीं';
+              else if (col === 'mut_duplicate') row[headerName] = mutObj.sec_12_4?.mut_duplicate || 'कोई नहीं';
+              else if (col === 'mut_glmac') row[headerName] = mutObj.sec_12_4?.mut_glmac || 'कोई नहीं';
+            });
+            mutationRows.push(row);
+          });
+        });
+        const wsMutation = XLSX.utils.json_to_sheet(mutationRows);
+        XLSX.utils.book_append_sheet(wb, wsMutation, 'Mutations');
+      }
+
+      // Sheet 4: Recovery & Encroachments
+      const recoveryRows = [];
+      const recoveryCols = selectedCols.filter(col => [
+        'recovery_not_started_count', 'seamaprakaran_total_pending', 'recovery_count_mact', 
+        'recovery_count_lr', 'recovery_count_pdr', 'recovery_count_irr', 'recovery_count_audit'
+      ].includes(col));
+      
+      if (recoveryCols.length > 0) {
+        adminFetchedData.patwari_reports.forEach(r => {
+          const row = {
+            'रिपोर्ट आईडी (Report ID)': r.report_id,
+            'पटवारी का नाम (Patwari)': r.patwari_name
+          };
+          
+          let adminObj = {};
+          try { adminObj = JSON.parse(r.other_admin_json || '{}'); } catch(e){}
+          
+          let courtObj = {};
+          try { courtObj = JSON.parse(r.court_cases_json || '{}'); } catch(e){}
+          const courtSummary = courtObj.summary || {};
+
+          recoveryCols.forEach(col => {
+            const headerName = COLUMN_MAPPING[col] || col;
+            if (col === 'recovery_not_started_count') row[headerName] = Number(adminObj.recovery_not_started_count || 0);
+            else if (col === 'seamaprakaran_total_pending') row[headerName] = Number(adminObj.seamaprakaran_total_pending || 0);
+            else if (col === 'recovery_count_mact') row[headerName] = Number(courtSummary.mact || 0);
+            else if (col === 'recovery_count_lr') row[headerName] = Number(courtSummary.lr || 0);
+            else if (col === 'recovery_count_pdr') row[headerName] = Number(courtSummary.pdr || 0);
+            else if (col === 'recovery_count_irr') row[headerName] = Number(courtSummary.irr || 0);
+            else if (col === 'recovery_count_audit') row[headerName] = Number(courtSummary.audit || 0);
+          });
+          recoveryRows.push(row);
+        });
+        const wsRecovery = XLSX.utils.json_to_sheet(recoveryRows);
+        XLSX.utils.book_append_sheet(wb, wsRecovery, 'Recovery_Encroachment');
+      }
+
+      if (wb.SheetNames.length === 0) {
+        alert('चयनित श्रेणियों के लिए कोई डेटा नहीं बन सका।');
+        return;
+      }
+
+      downloadWorkbook(wb, 'Consolidated_Overall_Report.xlsx');
+    }
+
+    function downloadWorkbook(wb, filename) {
+      const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' });
+      function s2ab(s) {
+        const buf = new ArrayBuffer(s.length);
+        const view = new Uint8Array(buf);
+        for (let i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
+        return buf;
+      }
+      const blob = new Blob([s2ab(wbout)], { type: 'application/octet-stream' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.click();
+      setTimeout(() => { URL.revokeObjectURL(url); }, 1000);
+    }
+
 
 
     function populateSdmReportsDropdown(reports) {
@@ -7271,6 +7761,7 @@
       };
 
       // General Details
+      setVal('prefilled_sdm_name', 'उपखंड अधिकारी भिनाय');
       setVal('tehsil', 'भिनाय');
       setVal('district', 'अजमेर');
       setVal('inspection_date', todayStr);
@@ -8146,7 +8637,7 @@
           <td>${pr.tehsil} (${pr.district})</td>
           <td>${statusText}</td>
           <td>
-            <button type="button" class="btn btn-primary" style="padding:4px 8px; font-size:0.75rem;" onclick="viewReportDetailsFromAdmin('${pr.report_id}', false)">👁️ देखें</button>
+            <button type="button" class="btn btn-primary" style="padding:4px 8px; font-size:0.75rem;" onclick="viewReportDetailsFromAdmin('${pr.report_id}', ${isVerified})">👁️ देखें</button>
           </td>
         `;
         tbody.appendChild(row);
@@ -8936,11 +9427,17 @@
 
       // Show sdmVerificationSection only during verification mode
       const sdmVerSection = document.getElementById('sdmVerificationSection');
+      const cleanSdmName = (data.sdm_name && data.sdm_name !== '-')
+        ? data.sdm_name
+        : ((data.prefilled_sdm_name && data.prefilled_sdm_name !== '-')
+          ? data.prefilled_sdm_name
+          : 'उपखंड अधिकारी भिनाय');
+
       if (sdmVerSection) {
         if (mode === 'sdm_verification_pending') {
           sdmVerSection.style.display = 'block';
-          document.getElementById('sdm_name').value = data.prefilled_sdm_name || data.sdm_name || '';
-          document.getElementById('sdm_comments').value = '';
+          document.getElementById('sdm_name').value = cleanSdmName;
+          document.getElementById('conclusion_text').value = '';
           clearCanvas('sdmSigCanvas');
           setTimeout(() => {
             resizeCanvas('sdmSigCanvas');
@@ -8956,7 +9453,7 @@
       let html = `
         <div class="print-header">
           <h1>राजस्व ग्राम निरीक्षण रिपोर्ट</h1>
-          <p>कार्यालय उपखंड अधिकारी: ${data.prefilled_sdm_name || data.sdm_name || 'भिनाय'} | उपखंड: ${data.tehsil || 'भिनाय'} (${data.district || 'अजमेर'})</p>
+          <p>कार्यालय उपखंड अधिकारी: ${cleanSdmName} | उपखंड: ${data.tehsil || 'भिनाय'} (${data.district || 'अजमेर'})</p>
           <p><strong>निरीक्षण दिनांक:</strong> ${formatDateToDMY(data.inspection_date) || '..........'} | <strong>रिपोर्ट आईडी:</strong> ${data.report_id || 'MOCK'}</p>
         </div>
 
@@ -8964,7 +9461,7 @@
           <div class="print-section-title">1. सामान्य विवरण (General Particulars)</div>
           <table class="print-table">
             <tr>
-              <td><strong>निरीक्षणकर्ता अधिकारी (SDM):</strong></td><td style="font-weight:600; color:#064e3b;">${data.prefilled_sdm_name || data.sdm_name || '-'}</td>
+              <td><strong>निरीक्षणकर्ता अधिकारी (SDM):</strong></td><td style="font-weight:600; color:#064e3b;">${cleanSdmName}</td>
               <td><strong>पटवार मण्डल:</strong></td><td>${data.patwar_mandal || '-'}</td>
             </tr>
             <tr>
@@ -10151,17 +10648,17 @@
       let pSigSrc = getGoogleDriveDirectLink(data.signature_base64 || data.patwari_signature || '');
       let sSigSrc = getGoogleDriveDirectLink(data.sdm_signature_base64 || data.sdm_signature || '');
 
-      const hidePatwariSigClass = (mode === 'sdm' || mode === 'admin_verified') ? 'no-print' : '';
-
-      html += `
-        <div class="print-signature-row ${hidePatwariSigClass}">
-          <div class="print-signature-box">
-            <p style="font-size:0.75rem;">सत्यापित पटवारी</p>
-            ${pSigSrc ? `<img class="print-signature-image" src="${pSigSrc}" alt="Patwari Sig">` : ''}
-            <p style="font-weight:600; font-size:0.8rem;">${data.patwari_name || ''}</p>
+      if (mode !== 'sdm' && mode !== 'admin_verified') {
+        html += `
+          <div class="print-signature-row">
+            <div class="print-signature-box">
+              <p style="font-size:0.75rem;">सत्यापित पटवारी</p>
+              ${pSigSrc ? `<img class="print-signature-image" src="${pSigSrc}" alt="Patwari Sig">` : ''}
+              <p style="font-weight:600; font-size:0.8rem;">${data.patwari_name || ''}</p>
+            </div>
           </div>
-        </div>
-      `;
+        `;
+      }
 
       if (mode === 'sdm' || mode === 'admin_verified') {
         const dispatchNo = data.sdm_dispatch_no || '..........';
@@ -10172,7 +10669,7 @@
           <div class="print-section" style="page-break-before: always; margin-top: 30px; font-family: var(--font-hindi);">
             <div style="margin-left: auto; margin-right: 50px; text-align: center; width: 200px; margin-bottom: 30px;">
               ${sSigSrc ? `<img class="print-signature-image" src="${sSigSrc}" alt="SDM Sig" style="max-height: 80px; display: block; margin: 0 auto 5px auto;">` : ''}
-              <p style="margin: 5px 0 5px 0; font-size: 0.9rem; font-weight: normal; color: #000;">(${data.sdm_name || ''})</p>
+              <p style="margin: 5px 0 5px 0; font-size: 0.9rem; font-weight: normal; color: #000;">(${cleanSdmName})</p>
               <p style="font-weight: bold; margin: 0; font-size: 0.95rem;">उपखण्ड अधिकारी</p>
               <p style="margin: 0; font-size: 0.95rem;">भिनाय</p>
             </div>
