@@ -68,60 +68,77 @@ function doPost(e) {
 function initSpreadsheet() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   
-  // 1. Initialize Patwari Sheet
+  const patwariHeaders = [
+    'Report ID', 'Timestamp', 'Mobile Number', 'Patwari Name', 'Patwar Mandal', 'ILR Circle', 
+    'Tehsil', 'District', 'Inspection Date', 'DOB', 'Hometown', 'Qualification', 
+    'First Appointment Date', 'Current Joining Date', 'Basic Salary', 'Permanent Status', 
+    'Trained Status', 'Exam Passed Status', 'Patwar HQ', 'Residence Type', 'Residence Details', 
+    'Show Cause Details', 'Pending Disciplinary Details', 'Decided Disciplinary Details', 
+    'Village Stats JSON', 'Inspections JSON', 'Rule 55 JSON', 'Map Khasras JSON', 
+    'Monthly Summary JSON', 'Kanungo JSON', 'Girdawari JSON', 'Encroachments JSON', 
+    'Mutations JSON', 'Court Cases JSON', 'Other Admin JSON',
+    'Rule 89 JSON', 'Rule 91 JSON', 'Jinswar JSON', 'Dhal Banch JSON', 'Recovery JSON',
+    'Treasury Deposits JSON', 'Copying Fee JSON', 'Store Inventory JSON', 'Passbooks JSON',
+    'Non Khatedari JSON', 'Conversion Violations JSON', 'Conversion Compliance JSON',
+    'Conversion Mutations JSON', 'Allotment Compliance JSON', 'Govt Allotment JSON',
+    'Court Cases Compliance JSON', 'Court By Sections JSON', 'Jamabandi Errors JSON',
+    'Seeding Draft JSON', 'Disasters Relief JSON', 'Beneficiary Seeding JSON',
+    'Patwari Signature', 'Overall Remarks', 'Prefilled SDM Name'
+  ];
+
   let patwariSheet = ss.getSheetByName(SHEET_PATWARI);
   if (!patwariSheet) {
     patwariSheet = ss.insertSheet(SHEET_PATWARI);
-    const headers = [
-      'Report ID', 'Timestamp', 'Mobile Number', 'Patwari Name', 'Patwar Mandal', 'ILR Circle', 
-      'Tehsil', 'District', 'Inspection Date', 'DOB', 'Hometown', 'Qualification', 
-      'First Appointment Date', 'Current Joining Date', 'Basic Salary', 'Permanent Status', 
-      'Trained Status', 'Exam Passed Status', 'Patwar HQ', 'Residence Type', 'Residence Details', 
-      'Show Cause Details', 'Pending Disciplinary Details', 'Decided Disciplinary Details', 
-      'Village Stats JSON', 'Inspections JSON', 'Rule 55 JSON', 'Map Khasras JSON', 
-      'Monthly Summary JSON', 'Kanungo JSON', 'Girdawari JSON', 'Encroachments JSON', 
-      'Mutations JSON', 'Court Cases JSON', 'Other Admin JSON',
-      // New Word-for-Word Expanded Columns
-      'Rule 89 JSON', 'Rule 91 JSON', 'Jinswar JSON', 'Dhal Banch JSON', 'Recovery JSON',
-      'Treasury Deposits JSON', 'Copying Fee JSON', 'Store Inventory JSON', 'Passbooks JSON',
-      'Non Khatedari JSON', 'Conversion Violations JSON', 'Conversion Compliance JSON',
-      'Conversion Mutations JSON', 'Allotment Compliance JSON', 'Govt Allotment JSON',
-      'Court Cases Compliance JSON', 'Court By Sections JSON', 'Jamabandi Errors JSON',
-      'Seeding Draft JSON', 'Disasters Relief JSON', 'Beneficiary Seeding JSON',
-      'Patwari Signature', 'Overall Remarks'
-    ];
-    patwariSheet.appendRow(headers);
-    patwariSheet.getRange(1, 1, 1, headers.length).setFontWeight('bold').setBackground('#e2e8f0');
+    patwariSheet.appendRow(patwariHeaders);
+    patwariSheet.getRange(1, 1, 1, patwariHeaders.length).setFontWeight('bold').setBackground('#e2e8f0');
     patwariSheet.setFrozenRows(1);
+  } else {
+    ensureHeaders(patwariSheet, patwariHeaders);
   }
-  
-  // 2. Initialize SDM Sheet
+
+  const sdmHeaders = [
+    'SDM Report ID', 'Patwari Report ID', 'SDM Timestamp', 'SDM Name', 'SDM Designation', 
+    'SDM Comments', 'SDM Signature',
+    'Mobile Number', 'Patwari Name', 'Patwar Mandal', 'ILR Circle', 'Tehsil', 'District', 'Inspection Date', 
+    'DOB', 'Hometown', 'Qualification', 'First Appointment Date', 'Current Joining Date', 
+    'Basic Salary', 'Permanent Status', 'Trained Status', 'Exam Passed Status', 'Patwar HQ', 
+    'Residence Type', 'Residence Details', 'Show Cause Details', 'Pending Disciplinary Details', 
+    'Decided Disciplinary Details', 'Village Stats JSON', 'Inspections JSON', 'Rule 55 JSON', 
+    'Map Khasras JSON', 'Monthly Summary JSON', 'Kanungo JSON', 'Girdawari JSON', 
+    'Encroachments JSON', 'Mutations JSON', 'Court Cases JSON', 'Other Admin JSON',
+    'Rule 89 JSON', 'Rule 91 JSON', 'Jinswar JSON', 'Dhal Banch JSON', 'Recovery JSON',
+    'Treasury Deposits JSON', 'Copying Fee JSON', 'Store Inventory JSON', 'Passbooks JSON',
+    'Non Khatedari JSON', 'Conversion Violations JSON', 'Conversion Compliance JSON',
+    'Conversion Mutations JSON', 'Allotment Compliance JSON', 'Govt Allotment JSON',
+    'Court Cases Compliance JSON', 'Court By Sections JSON', 'Jamabandi Errors JSON',
+    'Seeding Draft JSON', 'Disasters Relief JSON', 'Beneficiary Seeding JSON',
+    'Patwari Signature', 'Overall Remarks', 'Prefilled SDM Name'
+  ];
+
   let sdmSheet = ss.getSheetByName(SHEET_SDM);
   if (!sdmSheet) {
     sdmSheet = ss.insertSheet(SHEET_SDM);
-    const headers = [
-      'SDM Report ID', 'Patwari Report ID', 'SDM Timestamp', 'SDM Name', 'SDM Designation', 
-      'SDM Comments', 'SDM Signature',
-      'Mobile Number', 'Patwari Name', 'Patwar Mandal', 'ILR Circle', 'Tehsil', 'District', 'Inspection Date', 
-      'DOB', 'Hometown', 'Qualification', 'First Appointment Date', 'Current Joining Date', 
-      'Basic Salary', 'Permanent Status', 'Trained Status', 'Exam Passed Status', 'Patwar HQ', 
-      'Residence Type', 'Residence Details', 'Show Cause Details', 'Pending Disciplinary Details', 
-      'Decided Disciplinary Details', 'Village Stats JSON', 'Inspections JSON', 'Rule 55 JSON', 
-      'Map Khasras JSON', 'Monthly Summary JSON', 'Kanungo JSON', 'Girdawari JSON', 
-      'Encroachments JSON', 'Mutations JSON', 'Court Cases JSON', 'Other Admin JSON',
-      // New Word-for-Word Expanded Columns
-      'Rule 89 JSON', 'Rule 91 JSON', 'Jinswar JSON', 'Dhal Banch JSON', 'Recovery JSON',
-      'Treasury Deposits JSON', 'Copying Fee JSON', 'Store Inventory JSON', 'Passbooks JSON',
-      'Non Khatedari JSON', 'Conversion Violations JSON', 'Conversion Compliance JSON',
-      'Conversion Mutations JSON', 'Allotment Compliance JSON', 'Govt Allotment JSON',
-      'Court Cases Compliance JSON', 'Court By Sections JSON', 'Jamabandi Errors JSON',
-      'Seeding Draft JSON', 'Disasters Relief JSON', 'Beneficiary Seeding JSON',
-      'Patwari Signature', 'Overall Remarks'
-    ];
-    sdmSheet.appendRow(headers);
-    sdmSheet.getRange(1, 1, 1, headers.length).setFontWeight('bold').setBackground('#cbd5e1');
+    sdmSheet.appendRow(sdmHeaders);
+    sdmSheet.getRange(1, 1, 1, sdmHeaders.length).setFontWeight('bold').setBackground('#cbd5e1');
     sdmSheet.setFrozenRows(1);
+  } else {
+    ensureHeaders(sdmSheet, sdmHeaders);
   }
+}
+
+function ensureHeaders(sheet, expectedHeaders) {
+  const lastCol = sheet.getLastColumn();
+  if (lastCol < 1) {
+    sheet.appendRow(expectedHeaders);
+    sheet.getRange(1, 1, 1, expectedHeaders.length).setFontWeight('bold').setBackground('#cbd5e1');
+    return;
+  }
+  const actualHeaders = sheet.getRange(1, 1, 1, lastCol).getValues()[0].map(h => String(h).trim());
+  expectedHeaders.forEach(header => {
+    if (actualHeaders.indexOf(header) === -1) {
+      sheet.getRange(1, sheet.getLastColumn() + 1).setValue(header).setFontWeight('bold').setBackground('#cbd5e1');
+    }
+  });
 }
 
 /**
@@ -337,7 +354,8 @@ function savePatwariReport(data) {
       data.beneficiary_seeding_json || '[]',
       // Signatures
       sigCellVal || data.signature_base64 || '',
-      data.overall_remarks || ''
+      data.overall_remarks || '',
+      data.prefilled_sdm_name || ''
     ];
     
     // Check if report with same reportId already exists to prevent duplicates
@@ -455,7 +473,8 @@ function saveSdmReport(data) {
       data.beneficiary_seeding_json || '[]',
       // Patwari Signature and remarks
       data.patwari_signature || '', 
-      data.overall_remarks || ''
+      data.overall_remarks || '',
+      data.prefilled_sdm_name || ''
     ];
     
     // Check if report with same sdmReportId already exists to prevent duplicates
@@ -693,6 +712,7 @@ function getHeaderKeysMap() {
     'Beneficiary Seeding JSON': 'beneficiary_seeding_json',
     
     'Patwari Signature': 'patwari_signature',
-    'Overall Remarks': 'overall_remarks'
+    'Overall Remarks': 'overall_remarks',
+    'Prefilled SDM Name': 'prefilled_sdm_name'
   };
 }

@@ -6194,12 +6194,12 @@
       } catch (e) { }
 
       // Section 44: उपसंहार
-      if (data.conclusion_text || data.overall_remarks) {
+      if (data.conclusion_text || (isSdmVerificationMode && data.overall_remarks)) {
         html += `
           <div class="review-section">
             <div class="review-section-title">44. उपसंहार</div>
             ${data.conclusion_text ? `<p style="font-size: 0.8rem; font-style: italic; margin-bottom: 5px;"><strong>निष्कर्ष/टिप्पणी:</strong> ${data.conclusion_text}</p>` : ''}
-            ${data.overall_remarks ? `<p style="font-size: 0.8rem; font-style: italic; margin-top: 5px;"><strong>निरीक्षक/पटवारी की समग्र विशेष टिप्पणी (Overall Remarks):</strong> ${data.overall_remarks}</p>` : ''}
+            ${(isSdmVerificationMode && data.overall_remarks) ? `<p style="font-size: 0.8rem; font-style: italic; margin-top: 5px;"><strong>निरीक्षक/पटवारी की समग्र विशेष टिप्पणी (Overall Remarks):</strong> ${data.overall_remarks}</p>` : ''}
           </div>
         `;
       }
@@ -9856,7 +9856,7 @@
           <div class="print-section-title">44. उपसंहार:-</div>
           <div style="font-size: 0.85rem; padding: 8px; border: 1px solid var(--border-color); background-color: #fafafa; font-family: var(--font-hindi); min-height: 40px; line-height:1.6;">
             <p style="margin: 0 0 6px 0;"><strong>निष्कर्ष/टिप्पणी:</strong> ${data.conclusion_text || '-'}</p>
-            ${data.overall_remarks ? `<p style="margin: 6px 0 0 0; border-top: 1px dashed #cbd5e1; padding-top: 6px;"><strong>निरीक्षक/पटवारी की समग्र विशेष टिप्पणी (Overall Remarks):</strong> ${data.overall_remarks}</p>` : ''}
+            ${(mode === 'sdm' || mode === 'admin_verified') && data.overall_remarks ? `<p style="margin: 6px 0 0 0; border-top: 1px dashed #cbd5e1; padding-top: 6px;"><strong>निरीक्षक/पटवारी की समग्र विशेष टिप्पणी (Overall Remarks):</strong> ${data.overall_remarks}</p>` : ''}
           </div>
         </div>
       `;
