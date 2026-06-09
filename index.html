@@ -3534,13 +3534,13 @@
       // Default Village Row with values
       addVillageRow({
         v_name: 'भिनाय',
-        v_khata: '350',
-        v_khasra: '1420',
-        v_area: '482.50',
-        v_lagan: '3200',
-        v_cultivable: '390.00',
-        v_sivaychak: '62.50',
-        v_pasture: '30.00'
+        v_khata: '0',
+        v_khasra: '0',
+        v_area: '0',
+        v_lagan: '0',
+        v_cultivable: '0',
+        v_sivaychak: '0',
+        v_pasture: '0'
       });
       
       // Default Inspection Row with values
@@ -4934,7 +4934,7 @@
         qualification: 'स्नातक (Graduate)',
         first_appointment_date: '2015-08-15',
         current_joining_date: '2020-01-10',
-        basic_salary: '35000',
+        basic_salary: '0',
         permanent_status: 'स्थाई',
         trained_status: 'प्रशिक्षित',
         exam_passed_status: 'हाँ',
@@ -5021,12 +5021,12 @@
         rule116_remarks: 'काश्तकारों को रसीदें प्रदान कर उनके हस्ताक्षर लिए गए हैं।',
         rule117_egras: 'चालान ऑनलाइन ई-ग्रास द्वारा जमा किए जाते हैं।',
         copy_reg_status: 'हाँ',
-        copy_total_issued: '150',
+        copy_total_issued: '0',
         copy_pending_apps: '0',
         copy_fee_deposited: 'हाँ',
-        copy_fee_serial: '101 से 250',
-        copy_fee_amount: '3000',
-        copy_fee_words: 'तीन हजार रुपये',
+        copy_fee_serial: '0',
+        copy_fee_amount: '0',
+        copy_fee_words: 'शून्य',
         copy_monthly_meeting_deposit: 'हाँ',
         copy_serial_order: 'हाँ',
         copy_remarks: 'नकल पंजिका पूर्ण व अद्यतन है, राजकीय शुल्क समय पर जमा है।',
@@ -5039,10 +5039,10 @@
         p37_submitted_upto: '2080',
         p37_pending_samvat: 'कोई नहीं',
         record_room_remarks: 'रिकॉर्ड दाखिला पंजिका पूर्ण है, रिकॉर्ड समय पर जमा कराया गया है।',
-        passbook_total_holders: '850',
-        passbook_total_dist: '840',
-        passbook_pending: '10',
-        passbook_completed: '840',
+        passbook_total_holders: '0',
+        passbook_total_dist: '0',
+        passbook_pending: '0',
+        passbook_completed: '0',
         passbook_fee_status: 'हाँ',
         passbook_remarks: 'कृषि जोत पासबुक का अधिकांश वितरण पूर्ण हो चुका है, शेष प्रगति पर है।',
         citizen_charter_register_status: 'नागरिक अधिकार पत्र पंजिका संधारित है तथा सभी आवेदन समय सीमा में निस्तारित हैं।',
@@ -5603,9 +5603,7 @@
           keys.forEach(k => {
             let val = row[k];
             if (val === undefined || val === null || String(val).trim() === '') {
-              if (k.toLowerCase().includes('date')) {
-                val = '';
-              } else if (isNumericKey(k)) {
+              if (isNumericKey(k)) {
                 val = '0';
               } else {
                 val = '-';
@@ -5665,9 +5663,9 @@
                   <tr>
                     <td>${idx + 1}</td>
                     <td>${row.ins_officer || '-'}</td>
-                    <td>${row.ins_date || '-'}</td>
-                    <td>${row.ins_receive_date || '-'}</td>
-                    <td>${row.ins_compliance_date || '-'}</td>
+                    <td>${formatDateToDMY(row.ins_date) || '-'}</td>
+                    <td>${formatDateToDMY(row.ins_receive_date) || '-'}</td>
+                    <td>${formatDateToDMY(row.ins_compliance_date) || '-'}</td>
                   </tr>
                 `).join('')}
               </tbody>
@@ -7299,7 +7297,7 @@
       setVal('qualification', 'स्नातक (Graduate)');
       setVal('first_appointment_date', '2015-08-15');
       setVal('current_joining_date', '2020-01-10');
-      setVal('basic_salary', '35000');
+      setVal('basic_salary', '0');
       setVal('permanent_status', 'स्थाई');
       setVal('trained_status', 'प्रशिक्षित');
       setVal('exam_passed_status', 'हाँ');
@@ -7411,12 +7409,12 @@
       setVal('rule117_egras', 'चालान ऑनलाइन ई-ग्रास द्वारा जमा किए जाते हैं।');
       
       setVal('copy_reg_status', 'हाँ');
-      setVal('copy_total_issued', '150');
+      setVal('copy_total_issued', '0');
       setVal('copy_pending_apps', '0');
       setVal('copy_fee_deposited', 'हाँ');
-      setVal('copy_fee_serial', '101 से 250');
-      setVal('copy_fee_amount', '3000');
-      setVal('copy_fee_words', 'तीन हजार रुपये');
+      setVal('copy_fee_serial', '0');
+      setVal('copy_fee_amount', '0');
+      setVal('copy_fee_words', 'शून्य');
       setVal('copy_monthly_meeting_deposit', 'हाँ');
       setVal('copy_serial_order', 'हाँ');
       setVal('copy_remarks', 'नकल पंजिका पूर्ण व अद्यतन है, राजकीय शुल्क समय पर जमा है।');
@@ -7432,10 +7430,10 @@
       setVal('p37_pending_samvat', 'कोई नहीं');
       setVal('record_room_remarks', 'रिकॉर्ड दाखिला पंजिका पूर्ण है, रिकॉर्ड समय पर जमा कराया गया है।');
       
-      setVal('passbook_total_holders', '850');
-      setVal('passbook_total_dist', '840');
-      setVal('passbook_pending', '10');
-      setVal('passbook_completed', '840');
+      setVal('passbook_total_holders', '0');
+      setVal('passbook_total_dist', '0');
+      setVal('passbook_pending', '0');
+      setVal('passbook_completed', '0');
       setVal('passbook_fee_status', 'हाँ');
       setVal('passbook_remarks', 'कृषि जोत पासबुक का अधिकांश वितरण पूर्ण हो चुका है, शेष प्रगति पर है।');
       
@@ -7597,13 +7595,13 @@
       // Add default village row
       addVillageRow({
         v_name: 'भिनाय',
-        v_khata: '350',
-        v_khasra: '1420',
-        v_area: '482.50',
-        v_lagan: '3200',
-        v_cultivable: '390.00',
-        v_sivaychak: '62.50',
-        v_pasture: '30.00'
+        v_khata: '0',
+        v_khasra: '0',
+        v_area: '0',
+        v_lagan: '0',
+        v_cultivable: '0',
+        v_sivaychak: '0',
+        v_pasture: '0'
       });
 
       // Add default inspection row
@@ -9101,9 +9099,9 @@
                 <tr>
                   <td>${idx + 1}</td>
                   <td>${row.ins_officer || '-'}</td>
-                  <td>${row.ins_date || '-'}</td>
-                  <td>${row.ins_receive_date || '-'}</td>
-                  <td>${row.ins_compliance_date || '-'}</td>
+                  <td>${formatDateToDMY(row.ins_date) || '-'}</td>
+                  <td>${formatDateToDMY(row.ins_receive_date) || '-'}</td>
+                  <td>${formatDateToDMY(row.ins_compliance_date) || '-'}</td>
                 </tr>
               `).join('')}
             </tbody>
@@ -10286,9 +10284,7 @@
         keys.forEach(k => {
           let val = row[k];
           if (val === undefined || val === null || String(val).trim() === '') {
-            if (k.toLowerCase().includes('date')) {
-              val = '';
-            } else if (isNumericKey(k)) {
+            if (isNumericKey(k)) {
               val = '0';
             } else {
               val = '-';
