@@ -5329,10 +5329,37 @@
             <div class="review-item"><strong>प्रथम नियुक्ति तिथि:</strong> ${formatDateToDMY(data.first_appointment_date)}</div>
             <div class="review-item"><strong>वर्तमान पदस्थापन तिथि:</strong> ${formatDateToDMY(data.current_joining_date)}</div>
             <div class="review-item"><strong>मूल वेतन:</strong> ₹${data.basic_salary || '-'}</div>
-            <div class="review-item"><strong>स्थिति:</strong> ${data.permanent_status || '-'} / ${data.trained_status || '-'} / ${data.exam_passed_status || '-'}</div>
+            <div class="review-item"><strong>सेवा स्थिति (स्थाई/अस्थाई):</strong> ${data.permanent_status || '-'}</div>
+            <div class="review-item"><strong>प्रशिक्षण स्थिति:</strong> ${data.trained_status || '-'}</div>
+            <div class="review-item"><strong>विभागीय परीक्षा:</strong> ${data.exam_passed_status || '-'} ${data.exam_passed_status === 'हाँ' && data.exam_passed_year ? `(${data.exam_passed_year})` : ''}</div>
             <div class="review-item"><strong>मुख्यालय निवास:</strong> ${data.residence_type || '-'} (${data.residence_details || '-'})</div>
             <div class="review-item" style="grid-column: span 2;"><strong>कारण बताओ नोटिस:</strong> ${data.show_cause_details || 'कोई नहीं'}</div>
-            <div class="review-item" style="grid-column: span 2;"><strong>अनुशासनात्मक कार्यवाही (विचाराधीन/निर्णित):</strong> ${data.pending_disciplinary_details || 'कोई नहीं'} / ${data.decided_disciplinary_details || 'कोई नहीं'}</div>
+            <div class="review-item" style="grid-column: span 2;"><strong>अनुशासनात्मक कार्यवाही:</strong>
+              ${(() => {
+                const isPendingNone = !data.pending_disciplinary_details || 
+                                      data.pending_disciplinary_details.trim() === '' || 
+                                      data.pending_disciplinary_details.trim() === 'कोई नहीं' || 
+                                      data.pending_disciplinary_details.trim() === 'कोई कार्यवाही विचाराधीन नहीं।';
+                                      
+                const isDecidedNone = !data.decided_disciplinary_details || 
+                                      data.decided_disciplinary_details.trim() === '' || 
+                                      data.decided_disciplinary_details.trim() === 'कोई नहीं' || 
+                                      data.decided_disciplinary_details.trim() === 'कोई कार्यवाही निर्णित नहीं।';
+
+                if (isPendingNone && isDecidedNone) {
+                  return 'कोई कार्यवाही विचाराधीन या निर्णित नहीं।';
+                }
+                
+                const parts = [];
+                if (!isPendingNone) {
+                  parts.push(`विचाराधीन: ${data.pending_disciplinary_details.trim()}`);
+                }
+                if (!isDecidedNone) {
+                  parts.push(`निर्णित: ${data.decided_disciplinary_details.trim()}`);
+                }
+                return parts.join(' / ');
+              })()}
+            </div>
           </div>
         </div>
       `;
@@ -8676,23 +8703,51 @@
               <td><strong>पटवार मुख्यालय ग्राम (HQ):</strong></td><td>${data.patwar_hq || '-'}</td>
             </tr>
             <tr>
-              <td><strong>नियुक्ति तिथि (सेवा/मण्डल):</strong></td><td>${(() => {
-                const dates = [];
-                if (data.first_appointment_date) dates.push(formatDateToDMY(data.first_appointment_date));
-                if (data.current_joining_date) dates.push(formatDateToDMY(data.current_joining_date));
-                return dates.length > 0 ? dates.join(' / ') : '-';
-              })()}</td>
+              <td><strong>प्रथम नियुक्ति तिथि:</strong></td><td>${formatDateToDMY(data.first_appointment_date) || '-'}</td>
+              <td><strong>वर्तमान पदस्थापन तिथि:</strong></td><td>${formatDateToDMY(data.current_joining_date) || '-'}</td>
+            </tr>
+            <tr>
+              <td><strong>सेवा स्थिति (स्थाई/अस्थाई):</strong></td><td>${data.permanent_status || '-'}</td>
+              <td><strong>प्रशिक्षण स्थिति:</strong></td><td>${data.trained_status || '-'}</td>
+            </tr>
+            <tr>
+              <td><strong>विभागीय परीक्षा:</strong></td><td>परीक्षा उत्तीर्ण: ${data.exam_passed_status || '-'} ${data.exam_passed_status === 'हाँ' && (data.exam_passed_year || adminObj.exam_passed_year) ? `(${(data.exam_passed_year || adminObj.exam_passed_year)})` : ''}</td>
               <td><strong>मूल वेतन:</strong></td><td>₹${data.basic_salary || '0'}</td>
             </tr>
             <tr>
-              <td><strong>सेवा स्थिति:</strong></td><td>${data.permanent_status || '-'} / ${data.trained_status || '-'} / परीक्षा उत्तीर्ण: ${data.exam_passed_status || '-'} ${data.exam_passed_status === 'हाँ' && (data.exam_passed_year || adminObj.exam_passed_year) ? `(${(data.exam_passed_year || adminObj.exam_passed_year)})` : ''}</td>
-              <td><strong>मुख्यालय निवास:</strong></td><td>${data.residence_type || '-'} (${data.residence_details || '-'})</td>
+              <td><strong>मुख्यालय निवास:</strong></td><td colspan="3">${data.residence_type || '-'} (${data.residence_details || '-'})</td>
             </tr>
             <tr>
               <td><strong>कारण बताओ नोटिस:</strong></td><td colspan="3">${data.show_cause_details || 'कोई नहीं'}</td>
             </tr>
             <tr>
-              <td><strong>विचाराधीन / निर्णित कार्यवाही:</strong></td><td colspan="3">विचाराधीन: ${data.pending_disciplinary_details || 'कोई नहीं'} <br> निर्णित: ${data.decided_disciplinary_details || 'कोई नहीं'}</td>
+              <td><strong>अनुशासनात्मक कार्यवाही:</strong></td>
+              <td colspan="3">
+                ${(() => {
+                  const isPendingNone = !data.pending_disciplinary_details || 
+                                        data.pending_disciplinary_details.trim() === '' || 
+                                        data.pending_disciplinary_details.trim() === 'कोई नहीं' || 
+                                        data.pending_disciplinary_details.trim() === 'कोई कार्यवाही विचाराधीन नहीं।';
+                                        
+                  const isDecidedNone = !data.decided_disciplinary_details || 
+                                        data.decided_disciplinary_details.trim() === '' || 
+                                        data.decided_disciplinary_details.trim() === 'कोई नहीं' || 
+                                        data.decided_disciplinary_details.trim() === 'कोई कार्यवाही निर्णित नहीं।';
+
+                  if (isPendingNone && isDecidedNone) {
+                    return 'कोई कार्यवाही विचाराधीन या निर्णित नहीं।';
+                  }
+                  
+                  const parts = [];
+                  if (!isPendingNone) {
+                    parts.push(`<strong>विचाराधीन:</strong> ${data.pending_disciplinary_details.trim()}`);
+                  }
+                  if (!isDecidedNone) {
+                    parts.push(`<strong>निर्णित:</strong> ${data.decided_disciplinary_details.trim()}`);
+                  }
+                  return parts.join('<br>');
+                })()}
+              </td>
             </tr>
           </table>
         </div>
