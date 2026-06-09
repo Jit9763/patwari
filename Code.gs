@@ -139,15 +139,18 @@ function getPatwariReportByMobile(mobile) {
     
     const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
     const data = sheet.getRange(2, 1, lastRow - 1, sheet.getLastColumn()).getValues();
+    const formulas = sheet.getRange(2, 1, lastRow - 1, sheet.getLastColumn()).getFormulas();
     
     // Find the latest record matching the mobile number (searching backwards)
     let foundRow = null;
+    let foundFormulas = null;
     const targetMobile = String(mobile).trim();
     
     for (let i = data.length - 1; i >= 0; i--) {
       const rowMobile = String(data[i][2]).trim();
       if (rowMobile === targetMobile) {
         foundRow = data[i];
+        foundFormulas = formulas[i];
         break;
       }
     }
@@ -162,6 +165,10 @@ function getPatwariReportByMobile(mobile) {
     for (let j = 0; j < headers.length; j++) {
       const key = headerKeys[headers[j]] || headers[j];
       let val = foundRow[j];
+      const formula = foundFormulas ? foundFormulas[j] : '';
+      if (formula && formula.indexOf('=IMAGE') === 0) {
+        val = formula;
+      }
       if (val instanceof Date) {
         val = Utilities.formatDate(val, ss.getSpreadsheetTimeZone(), "yyyy-MM-dd");
       }
@@ -201,6 +208,7 @@ function getPendingPatwariReports() {
     
     const pHeaders = patwariSheet.getRange(1, 1, 1, patwariSheet.getLastColumn()).getValues()[0];
     const pData = patwariSheet.getRange(2, 1, pLastRow - 1, patwariSheet.getLastColumn()).getValues();
+    const pFormulas = patwariSheet.getRange(2, 1, pLastRow - 1, patwariSheet.getLastColumn()).getFormulas();
     const headerKeys = getHeaderKeysMap();
     
     // Filter to keep only the latest patwari report for each unique report_id to avoid duplicates
@@ -211,6 +219,10 @@ function getPendingPatwariReports() {
       for (let j = 0; j < pHeaders.length; j++) {
         const key = headerKeys[pHeaders[j]] || pHeaders[j];
         let val = pData[i][j];
+        const formula = pFormulas[i] ? pFormulas[i][j] : '';
+        if (formula && formula.indexOf('=IMAGE') === 0) {
+          val = formula;
+        }
         if (val instanceof Date) {
           val = Utilities.formatDate(val, ss.getSpreadsheetTimeZone(), "yyyy-MM-dd");
         }
@@ -494,13 +506,18 @@ function getAdminDashboardData() {
     if (pLastRow > 1) {
       const pHeaders = patwariSheet.getRange(1, 1, 1, patwariSheet.getLastColumn()).getValues()[0];
       const pData = patwariSheet.getRange(2, 1, pLastRow - 1, patwariSheet.getLastColumn()).getValues();
+      const pFormulas = patwariSheet.getRange(2, 1, pLastRow - 1, patwariSheet.getLastColumn()).getFormulas();
       const pKeysMap = getHeaderKeysMap();
       
-      patwariReports = pData.map(row => {
+      patwariReports = pData.map((row, i) => {
         const obj = {};
         for (let j = 0; j < pHeaders.length; j++) {
           const key = pKeysMap[pHeaders[j]] || pHeaders[j];
           let val = row[j];
+          const formula = pFormulas[i] ? pFormulas[i][j] : '';
+          if (formula && formula.indexOf('=IMAGE') === 0) {
+            val = formula;
+          }
           if (val instanceof Date) {
             val = Utilities.formatDate(val, ss.getSpreadsheetTimeZone(), "yyyy-MM-dd");
           }
@@ -522,13 +539,18 @@ function getAdminDashboardData() {
     if (sLastRow > 1) {
       const sHeaders = sdmSheet.getRange(1, 1, 1, sdmSheet.getLastColumn()).getValues()[0];
       const sData = sdmSheet.getRange(2, 1, sLastRow - 1, sdmSheet.getLastColumn()).getValues();
+      const sFormulas = sdmSheet.getRange(2, 1, sLastRow - 1, sdmSheet.getLastColumn()).getFormulas();
       const sKeysMap = getHeaderKeysMap();
       
-      sdmReports = sData.map(row => {
+      sdmReports = sData.map((row, i) => {
         const obj = {};
         for (let j = 0; j < sHeaders.length; j++) {
           const key = sKeysMap[sHeaders[j]] || sHeaders[j];
           let val = row[j];
+          const formula = sFormulas[i] ? sFormulas[i][j] : '';
+          if (formula && formula.indexOf('=IMAGE') === 0) {
+            val = formula;
+          }
           if (val instanceof Date) {
             val = Utilities.formatDate(val, ss.getSpreadsheetTimeZone(), "yyyy-MM-dd");
           }

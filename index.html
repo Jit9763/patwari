@@ -4746,9 +4746,11 @@
           if (loadedReportData) {
             pSigSrc = loadedReportData.signature_base64 || loadedReportData.patwari_signature || '';
           }
-          if (pSigSrc.includes('id=')) {
+          if (typeof pSigSrc === 'string' && pSigSrc.includes('id=')) {
             const match = pSigSrc.match(/id=([a-zA-Z0-9_-]+)/);
             if (match) pSigSrc = `https://drive.google.com/uc?export=view&id=${match[1]}`;
+          } else if (typeof pSigSrc !== 'string') {
+            pSigSrc = '';
           }
           document.getElementById('patwariSigImage').src = pSigSrc;
 
@@ -4780,9 +4782,11 @@
             if (changeSigBtn) changeSigBtn.style.display = 'inline-block';
 
             let pSigSrc = loadedReportData.signature_base64 || loadedReportData.patwari_signature;
-            if (pSigSrc.includes('id=')) {
+            if (typeof pSigSrc === 'string' && pSigSrc.includes('id=')) {
               const match = pSigSrc.match(/id=([a-zA-Z0-9_-]+)/);
               if (match) pSigSrc = `https://drive.google.com/uc?export=view&id=${match[1]}`;
+            } else if (typeof pSigSrc !== 'string') {
+              pSigSrc = '';
             }
             document.getElementById('patwariSigImage').src = pSigSrc;
           } else {
@@ -9819,17 +9823,17 @@
 
       // Signatures
       let pSigSrc = '';
-      if (data.signature_base64) {
+      if (typeof data.signature_base64 === 'string' && data.signature_base64) {
         pSigSrc = data.signature_base64;
-      } else if (data.patwari_signature) {
+      } else if (typeof data.patwari_signature === 'string' && data.patwari_signature) {
         const match = data.patwari_signature.match(/id=([a-zA-Z0-9_-]+)/);
         pSigSrc = match ? `https://drive.google.com/uc?export=view&id=${match[1]}` : (data.patwari_signature.indexOf('data:image') === 0 ? data.patwari_signature : '');
       }
 
       let sSigSrc = '';
-      if (data.sdm_signature_base64) {
+      if (typeof data.sdm_signature_base64 === 'string' && data.sdm_signature_base64) {
         sSigSrc = data.sdm_signature_base64;
-      } else if (data.sdm_signature) {
+      } else if (typeof data.sdm_signature === 'string' && data.sdm_signature) {
         const match = data.sdm_signature.match(/id=([a-zA-Z0-9_-]+)/);
         sSigSrc = match ? `https://drive.google.com/uc?export=view&id=${match[1]}` : (data.sdm_signature.indexOf('data:image') === 0 ? data.sdm_signature : '');
       }
