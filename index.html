@@ -4969,6 +4969,9 @@
     // ==========================================
     let lastPrefilledMobile = '';
     function checkMobilePrefill(val) {
+      if (isSdmVerificationMode) {
+        return; // Don't trigger prefill when verifying as SDM
+      }
       const cleanVal = String(val).replace(/\D/g, '');
       if (cleanVal.length === 10) {
         if (cleanVal !== lastPrefilledMobile) {
@@ -6377,7 +6380,7 @@
             <div class="review-section">
               <div class="review-section-title">38. जमाबंदी चौसाला (पी-26):- (नियम-153 से 166)</div>
               <p style="font-size:0.85rem; line-height: 1.6; margin-bottom: 15px;">
-                पटवार मण्डल के सभी ग्रामों की जमाबंदी आॅनलाईन है। आॅनलाईन ही निर्णित नामांतरकरणों का अमल स्वत: ही हो रहा है। जमाबंदी में त्रुटियों का विवरण निम्नानुसार है:-
+                पटवार मण्डल के सभी ग्रामों की जमाबंदी ऑनलाइन है। ऑनलाइन ही निर्णित नामांतरकरणों का अमल स्वत: ही हो रहा है। जमाबंदी में त्रुटियों का विवरण निम्नानुसार है:-
               </p>
               
               <div style="margin-bottom: 25px; overflow-x: auto;">
@@ -10036,7 +10039,7 @@
       `;
 
       // Section 14: नियम-166 शुद्धि पत्र
-      html += buildPrintTableHtml('14. (नियम-166) जमाबंदी व नामांतरकरणों का कार्य आॅनलाइन होने से शुद्धि पत्रांे का कार्य भी आॅनलाइन ही किया जा रहा है। विवरण निम्नानुसार पाया गया:-', data.rule166_json || data.shuddhipatrasBody,
+      html += buildPrintTableHtml('14. (नियम-166) जमाबंदी व नामांतरकरणों का कार्य ऑनलाइन होने से शुद्धि पत्रों का कार्य भी ऑनलाइन ही किया जा रहा है। विवरण निम्नानुसार पाया गया:-', data.rule166_json || data.shuddhipatrasBody,
         ['sh_decided', 'sh_docs', 'sh_remarks'],
         ['निरीक्षण अवधि में फैसल शुद्धिपत्र', 'शुद्धिपत्र के साथ संलग्न दस्तावेज की स्थिति', 'फैसल शुद्धिपत्र की विधिक स्थिति पर टिप्पणी'], true
       );
@@ -10264,7 +10267,7 @@
         <div class="print-section" style="page-break-inside: avoid;">
           <div class="print-section-title">20. अर्ज इरसाल (पी-34):- (नियम-117)</div>
           <p style="font-size: 0.85rem; padding: 5px; border: 1px solid var(--border-color); background-color: #fafafa; font-family: var(--font-hindi); line-height: 1.6;">
-            (नियम-117) आॅनलाइन ई-ग्रास से चालान तैयार कर जमा कराये जाते हैं:<br>
+            (नियम-117) ऑनलाइन ई-ग्रास से चालान तैयार कर जमा कराये जाते हैं:<br>
             <strong>${adminObj.rule117_egras || data.rule117_egras || '-'}</strong>
           </p>
         </div>
@@ -10312,7 +10315,7 @@
           <table class="print-table">
             <tr>
               <td><strong>रजिस्टर संधारित है अथवा नहीं:</strong></td><td>${storeInv.store_reg_status || 'हाँ'}</td>
-              <td><strong>सामान का मिलान आॅ.का. से करवाने का दिनांक:</strong></td><td>${formatDateToDMY(storeInv.store_verification_date) || '-'}</td>
+              <td><strong>सामान का मिलान ऑ.का. से करवाने का दिनांक:</strong></td><td>${formatDateToDMY(storeInv.store_verification_date) || '-'}</td>
             </tr>
             <tr>
               <td><strong>पंजिका में दर्ज सामान पटवारी के पास मौजूद होने की स्थिति:</strong></td><td colspan="3">${storeInv.store_items_status || '-'}</td>
@@ -10564,7 +10567,7 @@
 
         html += `
           <div class="print-section">
-            <div class="print-section-title">38. जमाबंदी चौसाला (पी-26):- (नियम-153 से 166) पटवार मण्डल के सभी ग्रामों की जमाबंदी आॅनलाईन है। आॅनलाईन ही निर्णित नामांतरकरणों का अमल स्वत: ही हो रहा है। जमाबंदी में त्रुटियों का विवरण निम्नानुसार है:-</div>
+            <div class="print-section-title">38. जमाबंदी चौसाला (पी-26):- (नियम-153 से 166) पटवार मण्डल के सभी ग्रामों की जमाबंदी ऑनलाइन है। ऑनलाइन ही निर्णित नामांतरकरणों का अमल स्वत: ही हो रहा है। जमाबंदी में त्रुटियों का विवरण निम्नानुसार है:-</div>
             ${buildJamabandiPrintTable('तालिका-1 (सामान्य त्रुटियां):', keys1, headers1)}
             ${buildJamabandiPrintTable('तालिका-2 (वर्गीकरण व नियम विरुद्ध):', keys2, headers2)}
             ${buildJamabandiPrintTable('तालिका-3 (विरासत व संपरिवर्तन):', keys3, headers3)}
