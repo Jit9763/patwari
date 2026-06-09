@@ -10151,8 +10151,10 @@
       let pSigSrc = getGoogleDriveDirectLink(data.signature_base64 || data.patwari_signature || '');
       let sSigSrc = getGoogleDriveDirectLink(data.sdm_signature_base64 || data.sdm_signature || '');
 
+      const hidePatwariSigClass = (mode === 'sdm' || mode === 'admin_verified') ? 'no-print' : '';
+
       html += `
-        <div class="print-signature-row">
+        <div class="print-signature-row ${hidePatwariSigClass}">
           <div class="print-signature-box">
             <p style="font-size:0.75rem;">सत्यापित पटवारी</p>
             ${pSigSrc ? `<img class="print-signature-image" src="${pSigSrc}" alt="Patwari Sig">` : ''}
@@ -10170,9 +10172,9 @@
           <div class="print-section" style="page-break-before: always; margin-top: 30px; font-family: var(--font-hindi);">
             <div style="margin-left: auto; margin-right: 50px; text-align: center; width: 200px; margin-bottom: 30px;">
               ${sSigSrc ? `<img class="print-signature-image" src="${sSigSrc}" alt="SDM Sig" style="max-height: 80px; display: block; margin: 0 auto 5px auto;">` : ''}
+              <p style="margin: 5px 0 5px 0; font-size: 0.9rem; font-weight: normal; color: #000;">(${data.sdm_name || ''})</p>
               <p style="font-weight: bold; margin: 0; font-size: 0.95rem;">उपखण्ड अधिकारी</p>
               <p style="margin: 0; font-size: 0.95rem;">भिनाय</p>
-              <p style="margin: 5px 0 0 0; font-size: 0.85rem; font-weight: normal; color: #475569;">(${data.sdm_name || ''})</p>
             </div>
             <div style="display: flex; justify-content: space-between; border-top: 1px solid #cbd5e1; padding-top: 15px; margin-bottom: 15px; font-size: 0.9rem;">
               <div><strong>क्रमांक:</strong> भू.अ./निरी./2025/ <strong>${dispatchNo}</strong></div>
@@ -10188,7 +10190,6 @@
               ${sSigSrc ? `<img class="print-signature-image" src="${sSigSrc}" alt="SDM Sig" style="max-height: 80px; display: block; margin: 0 auto 5px auto;">` : ''}
               <p style="font-weight: bold; margin: 0; font-size: 0.95rem;">उपखण्ड अधिकारी</p>
               <p style="margin: 0; font-size: 0.95rem;">भिनाय</p>
-              <p style="margin: 5px 0 0 0; font-size: 0.85rem; font-weight: normal; color: #475569;">(${data.sdm_name || ''})</p>
             </div>
           </div>
         `;
