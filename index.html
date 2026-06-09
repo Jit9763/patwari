@@ -1054,7 +1054,8 @@
               <div class="form-group">
                 <label for="prefilled_sdm_name">निरीक्षणकर्ता उपखण्ड अधिकारी (SDM) का नाम <span>*</span></label>
                 <input type="text" id="prefilled_sdm_name" class="form-input"
-                  placeholder="SDM का नाम (Excel से ऑटो-फिल)" required>
+                  placeholder="SDM का नाम (Excel से ऑटो-फिल)" required
+                  oninput="const el = document.getElementById('sdm_name'); if (el) el.value = this.value;">
               </div>
               <div class="form-group">
                 <label for="mobile_no">1.7. मोबाईल नम्बर (कुंजी) <span>*</span></label>
@@ -3173,7 +3174,8 @@
               <div class="grid-2">
                 <div class="form-group">
                   <label for="sdm_name">अनुमोदनकर्ता अधिकारी का नाम (SDM Name) <span>*</span></label>
-                  <input type="text" id="sdm_name" class="form-input" placeholder="जैसे: श्री रामजी लाल चौधरी">
+                  <input type="text" id="sdm_name" class="form-input" placeholder="जैसे: श्री रामजी लाल चौधरी"
+                    oninput="const el = document.getElementById('prefilled_sdm_name'); if (el) el.value = this.value;">
                 </div>
               </div>
 
@@ -4855,12 +4857,17 @@
           document.getElementById('sdmVerificationFields').style.display = 'block';
 
           if (loadedReportData) {
-            const validSdmName = (loadedReportData.sdm_name && loadedReportData.sdm_name !== '-')
-              ? loadedReportData.sdm_name
-              : ((loadedReportData.prefilled_sdm_name && loadedReportData.prefilled_sdm_name !== '-')
-                ? loadedReportData.prefilled_sdm_name
-                : 'उपखंड अधिकारी भिनाय');
-            document.getElementById('sdm_name').value = validSdmName;
+            const currentPrefilledVal = document.getElementById('prefilled_sdm_name') ? document.getElementById('prefilled_sdm_name').value.trim() : '';
+            if (currentPrefilledVal) {
+              document.getElementById('sdm_name').value = currentPrefilledVal;
+            } else {
+              const validSdmName = (loadedReportData.sdm_name && loadedReportData.sdm_name !== '-')
+                ? loadedReportData.sdm_name
+                : ((loadedReportData.prefilled_sdm_name && loadedReportData.prefilled_sdm_name !== '-')
+                  ? loadedReportData.prefilled_sdm_name
+                  : 'उपखंड अधिकारी भिनाय');
+              document.getElementById('sdm_name').value = validSdmName;
+            }
           }
 
           setTimeout(() => {
