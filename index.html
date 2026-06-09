@@ -3126,15 +3126,6 @@
               <label for="seeding_remarks">आपदा/सीडिंग पर विशेष टिप्पणी:-</label>
               <textarea id="seeding_remarks" class="form-input" style="height: 50px;"></textarea>
             </div>
-
-            <hr style="margin: 30px 0; border: 0; border-top: 1px solid #e2e8f0;">
-
-            <h3 class="print-section-title">44. उपसंहार:-</h3>
-            <div class="form-group" style="margin-bottom: 20px;">
-              <label for="conclusion_text">निष्कर्ष/टिप्पणी:-</label>
-              <textarea id="conclusion_text" class="form-input" style="height: 100px;"
-                placeholder="निष्कर्ष यहाँ दर्ज करें..."></textarea>
-            </div>
           </div>
 
 
@@ -3195,6 +3186,13 @@
                       onclick="fillInput('sdm_comments', 'रिपोर्ट में दर्ज विवरण संतोषजनक पाए गए हैं।')">संतोषजनक</span>
                   </div>
                 </div>
+              </div>
+
+              <!-- Section 44: उपसंहार (Only visible and filled by SDM) -->
+              <div class="form-group" style="margin-top: 15px;">
+                <label for="conclusion_text">निष्कर्ष/टिप्पणी (Conclusion Remarks) <span>*</span></label>
+                <textarea id="conclusion_text" class="form-input" style="height: 80px;"
+                  placeholder="निष्कर्ष यहाँ दर्ज करें..."></textarea>
               </div>
 
               <!-- Inspector/Patwari Overall Remarks (Only visible and filled by SDM) -->
@@ -3708,6 +3706,27 @@
         }
       } catch (e) { }
       return s;
+    }
+
+    function isNumericKey(k) {
+      if (!k) return false;
+      const textOrDateKeys = [
+        'ml_pending_period', 'ml_pending_reason', 'mu_period', 'mu_reason',
+        'e_report_delay', 'e_remarks', 'db_b_patwari', 'db_b_ilr', 'db_b_tra',
+        'db_b_officer', 'db_b_reason', 'tr_timeliness', 'tr_remarks', 'rec_challan', 'rec_match'
+      ];
+      if (textOrDateKeys.includes(k) || k.toLowerCase().includes('reason') || k.toLowerCase().includes('period') || k.toLowerCase().includes('date') || k.toLowerCase().includes('status') || k.toLowerCase().includes('remark') || k.toLowerCase().includes('details') || k.toLowerCase().includes('name') || k.toLowerCase().includes('subject')) {
+        return false;
+      }
+      
+      const numericPatterns = [
+        'count', 'total', 'pending', 'decided', 'resolved', 'completed', 'amount', 'fee',
+        'filed', 'prev', 'khasra', 'khata', 'area', 'lagan', 'cultivable', 'sivaychak', 'pasture',
+        'write', 'check', 'tra', 'diff', 'sheet', 'mact', 'lr', 'pdr', 'irr', 'audit', 'done',
+        'computer', 'issued', 'val', 'deposit'
+      ];
+      const exactNumeric = ['sh_decided', 'db_khata', 'db_write', 'db_check', 'db_tra', 'db_pending', 'db_b_khata'];
+      return exactNumeric.includes(k) || numericPatterns.some(pat => k.toLowerCase().includes(pat));
     }
 
     // ==========================================
@@ -5582,16 +5601,18 @@
             tds += `<td><strong>${vName}</strong></td>`;
           }
           keys.forEach(k => {
-          let val = row[k];
-          if (val === undefined || val === null || String(val).trim() === '') {
-            if (k.toLowerCase().includes('date')) {
-              val = '';
-            } else {
-              val = '-';
+            let val = row[k];
+            if (val === undefined || val === null || String(val).trim() === '') {
+              if (k.toLowerCase().includes('date')) {
+                val = '';
+              } else if (isNumericKey(k)) {
+                val = '0';
+              } else {
+                val = '-';
+              }
+            } else if (k.toLowerCase().includes('date')) {
+              val = formatDateToDMY(val);
             }
-          } else if (k.toLowerCase().includes('date')) {
-            val = formatDateToDMY(val);
-          }
           tds += `<td>${val}</td>`;
         });
           rows += `<tr>${tds}</tr>`;
@@ -6387,12 +6408,12 @@
       } catch (e) { }
 
       // Section 44: उपसंहार
-      if (data.conclusion_text || (isSdmVerificationMode && data.overall_remarks)) {
+      if ((isSdmVerificationMode || sdmLoadedReport) && (data.conclusion_text || data.overall_remarks)) {
         html += `
           <div class="review-section">
             <div class="review-section-title">44. उपसंहार</div>
             ${data.conclusion_text ? `<p style="font-size: 0.8rem; font-style: italic; margin-bottom: 5px;"><strong>निष्कर्ष/टिप्पणी:</strong> ${data.conclusion_text}</p>` : ''}
-            ${(isSdmVerificationMode && data.overall_remarks) ? `<p style="font-size: 0.8rem; font-style: italic; margin-top: 5px;"><strong>निरीक्षक/पटवारी की समग्र विशेष टिप्पणी (Overall Remarks):</strong> ${data.overall_remarks}</p>` : ''}
+            ${data.overall_remarks ? `<p style="font-size: 0.8rem; font-style: italic; margin-top: 5px;"><strong>निरीक्षक/पटवारी की समग्र विशेष टिप्पणी (Overall Remarks):</strong> ${data.overall_remarks}</p>` : ''}
           </div>
         `;
       }
@@ -7453,7 +7474,7 @@
       setVal('jamabandi_remarks', 'जमाबंदी चौसाला पी-26 की जांच में पाई गई सामान्य त्रुटियों के सुधार हेतु शुद्धि पत्र जारी किए जा रहे हैं।');
       setVal('accidents_remarks', 'दुर्घटना/डूबने/विद्युत आपदा राहत के सभी प्रकरणों में समय पर सहायता राशि स्वीकृत कराई गई है।');
       setVal('seeding_remarks', 'पीएम किसान योजना के अंतर्गत सीडिंग व फार्मर रजिस्ट्री का कार्य लगभग पूर्ण हो चुका है।');
-      setVal('conclusion_text', 'निरीक्षण के दौरान पटवार हल्का का कार्य संतोषजनक पाया गया। अभिलेखों का संधारण नियमानुसार अद्यतन है।');
+      setVal('conclusion_text', '');
 
       // SDM fields
       setVal('sdm_name', 'उपखंड अधिकारी भिनाय');
@@ -10267,6 +10288,8 @@
           if (val === undefined || val === null || String(val).trim() === '') {
             if (k.toLowerCase().includes('date')) {
               val = '';
+            } else if (isNumericKey(k)) {
+              val = '0';
             } else {
               val = '-';
             }
