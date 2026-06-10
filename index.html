@@ -5168,11 +5168,12 @@
             if (currentPrefilledVal) {
               document.getElementById('sdm_name').value = currentPrefilledVal;
             } else {
+              const fallbackSdm = (globalDropdownData && globalDropdownData.sdmName) ? globalDropdownData.sdmName : 'उपखंड अधिकारी भिनाय';
               const validSdmName = (loadedReportData.sdm_name && loadedReportData.sdm_name !== '-')
                 ? loadedReportData.sdm_name
                 : ((loadedReportData.prefilled_sdm_name && loadedReportData.prefilled_sdm_name !== '-')
                   ? loadedReportData.prefilled_sdm_name
-                  : 'उपखंड अधिकारी भिनाय');
+                  : fallbackSdm);
               document.getElementById('sdm_name').value = validSdmName;
             }
           }
@@ -8091,7 +8092,9 @@
       };
 
       // General Details
-      setVal('prefilled_sdm_name', 'उपखंड अधिकारी भिनाय');
+      const defaultSdm = (globalDropdownData && globalDropdownData.sdmName) ? globalDropdownData.sdmName : 'उपखंड अधिकारी भिनाय';
+      setVal('prefilled_sdm_name', defaultSdm);
+      setVal('sdm_name', defaultSdm);
       setVal('tehsil', 'भिनाय');
       setVal('district', 'अजमेर');
       setVal('inspection_date', todayStr);
@@ -8278,7 +8281,8 @@
       setVal('conclusion_text', '');
 
       // SDM fields
-      setVal('sdm_name', 'उपखंड अधिकारी भिनाय');
+      const fallbackSdm = (globalDropdownData && globalDropdownData.sdmName) ? globalDropdownData.sdmName : 'उपखंड अधिकारी भिनाय';
+      setVal('sdm_name', fallbackSdm);
       setVal('sdm_comments', 'पटवार मण्डल भिनाय का निरीक्षण किया गया। कार्य संतोषजनक है, कमियों के सुधार हेतु निर्देशित किया गया।');
       setVal('sdm_dispatch_tehsil', 'भिनाय');
       setVal('sdm_dispatch_patwari_tehsil', 'भिनाय');
@@ -9763,11 +9767,12 @@
 
       // Show sdmVerificationSection only during verification mode
       const sdmVerSection = document.getElementById('sdmVerificationSection');
+      const fallbackSdm = (globalDropdownData && globalDropdownData.sdmName) ? globalDropdownData.sdmName : 'उपखंड अधिकारी भिनाय';
       const cleanSdmName = (data.sdm_name && data.sdm_name !== '-')
         ? data.sdm_name
         : ((data.prefilled_sdm_name && data.prefilled_sdm_name !== '-')
           ? data.prefilled_sdm_name
-          : 'उपखंड अधिकारी भिनाय');
+          : fallbackSdm);
 
       if (sdmVerSection) {
         if (mode === 'sdm_verification_pending') {
