@@ -49,6 +49,8 @@ function doPost(e) {
       } else {
         result = getAdminDashboardData();
       }
+    } else if (data.action === 'getDropdownData') {
+      result = getDropdownData();
     }
     
     return ContentService.createTextOutput(JSON.stringify(result))
@@ -807,4 +809,40 @@ function getHeaderKeysMap() {
     'Overall Remarks': 'overall_remarks',
     'Prefilled SDM Name': 'prefilled_sdm_name'
   };
+}
+
+/**
+ * Fetches Patwar Mandals, Gram Panchayats, Villages, and SDM Name from Sheet1.
+ */
+function getDropdownData() {
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    let sheet1 = ss.getSheetByName('Sheet1');
+    if (!sheet1) {
+      return { status: 'error', message: 'Sheet1 नहीं मिली।' };
+    }
+    const lastRow = sheet1.getLastRow();
+    if (lastRow < 2) {
+      return { status: 'success', sdmName: '', mappings: [] };
+    }
+    const dataRange = sheet1.getRange(1, 1, lastRow, 5).getValues();
+    const sdmName = String(dataRange[1][0]).trim(); // A2
+    
+    const mappings = [];
+    for (let i = 1; i < dataRange.length; i++) {
+      const panchayat = String(dataRange[i][2]).trim(); // Column C
+      const patwarMandal = String(dataRange[i][3]).trim(); // Column D
+      const village = String(dataRange[i][4]).trim(); // Column E
+      if (patwarMandal || village) {
+        mappings.push({
+          panchayat: panchayat,
+          patwarMandal: patwarMandal,
+          village: village
+        });
+      }
+    }
+    return { status: 'success', sdmName: sdmName, mappings: mappings };
+  } catch (e) {
+    return { status: 'error', message: 'Sheet1 डेटा लोड करने में त्रुटि: ' + e.toString() };
+  }
 }

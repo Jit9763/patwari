@@ -129,7 +129,25 @@ class CustomHandler(http.server.SimpleHTTPRequestHandler):
                     val = json.dumps(val, ensure_ascii=False)
                 sheet.cell(row=target_row_idx, column=col_idx, value=val)
 
-        if action == 'getPatwariReport':
+        if action == 'getDropdownData':
+            try:
+                sync_res = forward_to_google_sheet('getDropdownData', {})
+                if sync_res.get('status') == 'success':
+                    return sync_res
+            except Exception as e:
+                print("Failed to forward getDropdownData to Google Sheets:", e)
+            return {
+                "status": "success",
+                "sdmName": "श्रीमती जीतू कुलहरी",
+                "mappings": [
+                    {"panchayat": "बडली", "patwarMandal": "बडली", "village": "बडली"},
+                    {"panchayat": "बडगांव", "patwarMandal": "केरियाखूर्द", "village": "केरियाखूर्द"},
+                    {"panchayat": "बडगांव", "patwarMandal": "केरियाखूर्द", "village": "रघुनाथपुरा"},
+                    {"panchayat": "बडगांव", "patwarMandal": "बडगांव", "village": "बडगांव"}
+                ]
+            }
+
+        elif action == 'getPatwariReport':
             mobile = normalize_mobile(payload.get('mobile_no'))
             if not mobile:
                 return {"status": "error", "message": "मोबाईल नम्बर खाली है।"}

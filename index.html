@@ -968,6 +968,7 @@
 <body>
   <!-- HEADER BANNER -->
   <div class="header-banner">
+    <div class="banner-subheading" style="font-family: var(--font-hindi); font-size: 1.25rem; font-weight: bold; color: var(--accent-color); margin-bottom: 5px; letter-spacing: 0.5px; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4);">कार्यालय उपखंड अधिकारी भिनाय</div>
     <h1>पटवारी कार्यालय निरीक्षण पोर्टल</h1>
     <p>राजस्व विभाग, राजस्थान सरकार - Sub-Divisional Inspection Portal</p>
     <div class="badge" id="portalBadge">पोर्टल</div>
@@ -1073,7 +1074,9 @@
               </div>
               <div class="form-group">
                 <label for="patwar_mandal">1.1. पटवार मण्डल <span>*</span></label>
-                <input type="text" id="patwar_mandal" class="form-input" required>
+                <select id="patwar_mandal" class="form-input" required onchange="handlePatwarMandalChange(this.value)">
+                  <option value="">पटवार मण्डल चुनें</option>
+                </select>
               </div>
             </div>
 
@@ -3520,6 +3523,37 @@
     </div>
   </div>
 
+  <!-- VILLAGE SELECTOR MODAL -->
+  <div id="villageSelectorModal" class="modal-overlay">
+    <div class="modal-card" style="max-width: 500px;">
+      <div class="modal-header" style="background-color: var(--primary-color); color: white; padding: 15px 20px;">
+        <h3 style="margin: 0; font-family: var(--font-hindi);">राजस्व ग्राम का चयन करें (Select Revenue Village)</h3>
+      </div>
+      <div class="modal-body" style="padding: 20px; max-height: 400px; overflow-y: auto;">
+        <div class="form-group" style="margin-bottom: 15px;">
+          <label for="modal_patwar_mandal" style="font-weight: 600; display: block; margin-bottom: 6px;">पटवार मण्डल (Patwar Mandal)</label>
+          <select id="modal_patwar_mandal" class="form-input" onchange="loadVillagesForModal(this.value)">
+            <option value="">समस्त पटवार मण्डल</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin-bottom: 15px;">
+          <label for="modal_village_search" style="font-weight: 600; display: block; margin-bottom: 6px;">ग्राम खोजें (Search Village)</label>
+          <input type="text" id="modal_village_search" class="form-input" placeholder="खोजें..." oninput="filterModalVillages(this.value)">
+        </div>
+        <div class="form-group" style="margin-bottom: 15px;">
+          <label style="font-weight: 600; display: block; margin-bottom: 6px;">ग्राम सूची (Villages):</label>
+          <div id="modal_village_list" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; max-height: 180px; overflow-y: auto; padding: 8px; border: 1px solid #cbd5e1; border-radius: var(--radius-sm); background-color: #f8fafc;">
+            <!-- Villages will be shown as chips or buttons here -->
+          </div>
+        </div>
+
+      </div>
+      <div class="modal-footer" style="padding: 15px 20px; background-color: #f8fafc; display: flex; justify-content: flex-end; border-top: 1px solid #e2e8f0;">
+        <button type="button" class="btn btn-secondary" onclick="closeVillageSelectorModal()">रद्द करें</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     // ==========================================
     // APP STATE & CONFIG
@@ -3583,10 +3617,239 @@
       other_corrections: 'अन्य शुद्धियां'
     };
 
+    // Global variable to store Sheet1 mapping data
+    let globalDropdownData = null;
+    let isPrefillingForm = false;
+    let activeVillageInputTarget = null;
+
+    function loadDropdownAndSdmData() {
+      const payload = { action: 'getDropdownData' };
+      callBackendAPI(payload, (response) => {
+        if (response.status === 'success') {
+          globalDropdownData = response;
+          // 1. Prefill SDM name in fields if empty
+          if (response.sdmName) {
+            const prefilledSdmInput = document.getElementById('prefilled_sdm_name');
+            if (prefilledSdmInput && !prefilledSdmInput.value.trim()) {
+              prefilledSdmInput.value = response.sdmName;
+            }
+            const sdmNameInput = document.getElementById('sdm_name');
+            if (sdmNameInput && (!sdmNameInput.value.trim() || sdmNameInput.value === 'उपखंड अधिकारी भिनाय')) {
+              sdmNameInput.value = response.sdmName;
+            }
+          }
+          // 2. Populate Patwar Mandal dropdown
+          populatePatwarMandalDropdown();
+        } else {
+          console.warn('Failed to load dropdown data:', response.message);
+        }
+      }, (error) => {
+        console.error('Error loading dropdown data:', error);
+      });
+    }
+
+    function populatePatwarMandalDropdown() {
+      const selectEl = document.getElementById('patwar_mandal');
+      if (!selectEl || !globalDropdownData || !globalDropdownData.mappings) return;
+      
+      const mandals = new Set();
+      globalDropdownData.mappings.forEach(m => {
+        if (m.patwarMandal) mandals.add(m.patwarMandal);
+      });
+      
+      selectEl.innerHTML = '<option value="">पटवार मण्डल चुनें</option>';
+      Array.from(mandals).sort().forEach(mandal => {
+        const opt = document.createElement('option');
+        opt.value = mandal;
+        opt.textContent = mandal;
+        selectEl.appendChild(opt);
+      });
+      
+      if (loadedReportData && loadedReportData.patwar_mandal) {
+        selectEl.value = loadedReportData.patwar_mandal;
+      }
+    }
+
+    function handlePatwarMandalChange(mandalVal) {
+      if (!mandalVal || !globalDropdownData || !globalDropdownData.mappings) return;
+      if (isPrefillingForm) return;
+
+      const tbody = document.getElementById('villageStatsBody');
+      if (!tbody) return;
+      
+      tbody.innerHTML = '';
+      const villages = globalDropdownData.mappings.filter(m => m.patwarMandal === mandalVal);
+      const addedVillages = new Set();
+      villages.forEach(v => {
+        if (v.village && !addedVillages.has(v.village)) {
+          addedVillages.add(v.village);
+          addVillageRow({ v_name: v.village });
+        }
+      });
+      
+      syncVillagesToAllTables();
+    }
+
+    // Modal helpers
+    function openVillageSelector(inputElement) {
+      activeVillageInputTarget = inputElement;
+      document.getElementById('villageSelectorModal').style.display = 'flex';
+      
+      document.getElementById('modal_village_search').value = '';
+      document.getElementById('modal_custom_village').value = '';
+      
+      populateModalPatwarMandalDropdown();
+      
+      const pmVal = document.getElementById('patwar_mandal').value;
+      if (pmVal) {
+        document.getElementById('modal_patwar_mandal').value = pmVal;
+        loadVillagesForModal(pmVal);
+      } else {
+        document.getElementById('modal_patwar_mandal').value = '';
+        loadVillagesForModal('');
+      }
+    }
+
+    function populateModalPatwarMandalDropdown() {
+      const selectEl = document.getElementById('modal_patwar_mandal');
+      if (!selectEl || !globalDropdownData || !globalDropdownData.mappings) return;
+      
+      const mandals = new Set();
+      globalDropdownData.mappings.forEach(m => {
+        if (m.patwarMandal) mandals.add(m.patwarMandal);
+      });
+      
+      selectEl.innerHTML = '<option value="">समस्त पटवार मण्डल</option>';
+      Array.from(mandals).sort().forEach(mandal => {
+        const opt = document.createElement('option');
+        opt.value = mandal;
+        opt.textContent = mandal;
+        selectEl.appendChild(opt);
+      });
+    }
+
+    function loadVillagesForModal(patwarMandal) {
+      const listContainer = document.getElementById('modal_village_list');
+      if (!listContainer) return;
+      listContainer.innerHTML = '';
+      
+      if (!globalDropdownData || !globalDropdownData.mappings) {
+        listContainer.innerHTML = '<div style="color: #64748b; font-size: 0.85rem;">कोई डेटा उपलब्ध नहीं है</div>';
+        return;
+      }
+      
+      const filtered = globalDropdownData.mappings.filter(m => !patwarMandal || m.patwarMandal === patwarMandal);
+      const uniqueVillages = new Set();
+      filtered.forEach(m => {
+        if (m.village) uniqueVillages.add(m.village);
+      });
+      
+      if (uniqueVillages.size === 0) {
+        listContainer.innerHTML = '<div style="color: #64748b; font-size: 0.85rem;">इस मण्डल में कोई ग्राम नहीं है</div>';
+        return;
+      }
+      
+      Array.from(uniqueVillages).sort().forEach(villageName => {
+        const badge = document.createElement('div');
+        badge.style.padding = '6px 12px';
+        badge.style.backgroundColor = '#ffffff';
+        badge.style.border = '1px solid #cbd5e1';
+        badge.style.borderRadius = '16px';
+        badge.style.cursor = 'pointer';
+        badge.style.fontSize = '0.85rem';
+        badge.style.transition = 'all 0.2s';
+        badge.className = 'modal-village-chip';
+        badge.textContent = villageName;
+        badge.onclick = () => selectVillage(villageName);
+        
+        badge.onmouseover = () => {
+          badge.style.backgroundColor = 'var(--primary-color)';
+          badge.style.color = '#ffffff';
+          badge.style.borderColor = 'var(--primary-color)';
+        };
+        badge.onmouseout = () => {
+          badge.style.backgroundColor = '#ffffff';
+          badge.style.color = 'initial';
+          badge.style.borderColor = '#cbd5e1';
+        };
+        
+        listContainer.appendChild(badge);
+      });
+    }
+
+    function filterModalVillages(query) {
+      const q = query.toLowerCase().trim();
+      const chips = document.querySelectorAll('.modal-village-chip');
+      chips.forEach(chip => {
+        const txt = chip.textContent.toLowerCase();
+        if (txt.includes(q)) {
+          chip.style.display = 'block';
+        } else {
+          chip.style.display = 'none';
+        }
+      });
+    }
+
+    function selectVillage(villageName) {
+      if (activeVillageInputTarget) {
+        activeVillageInputTarget.value = villageName;
+        syncVillagesToAllTables();
+      }
+      closeVillageSelectorModal();
+    }
+
+    function closeVillageSelectorModal() {
+      document.getElementById('villageSelectorModal').style.display = 'none';
+      activeVillageInputTarget = null;
+    }
+
+    function autoSaveSdmData() {
+      if (!sdmLoadedReport) return;
+      
+      const sdmComment = document.getElementById('conclusion_text').value.trim();
+      const sdmName = document.getElementById('sdm_name').value.trim();
+      const sdmSigState = signatureCanvasStates['sdmSigCanvas'];
+      
+      const sdmPayload = compileFormData();
+      sdmPayload.patwari_report_id = sdmLoadedReport.report_id;
+      sdmPayload.report_id = sdmLoadedReport.report_id;
+      sdmPayload.sdm_name = sdmName || 'उपखंड अधिकारी भिनाय';
+      sdmPayload.sdm_comments = sdmComment || '';
+      
+      if (sdmSigState.hasSigned) {
+        const sdmSigCanvas = document.getElementById('sdmSigCanvas');
+        sdmPayload.sdm_signature_base64 = sdmSigCanvas.toDataURL('image/png');
+      } else {
+        sdmPayload.sdm_signature_base64 = sdmLoadedReport.sdm_signature_base64 || sdmLoadedReport.sdm_signature || '';
+      }
+      
+      sdmPayload.patwari_signature = sdmLoadedReport.patwari_signature || sdmLoadedReport.signature_base64 || '';
+
+      const reqPayload = {
+        action: 'saveSdm',
+        password: SECURITY_PASSWORD,
+        payload: sdmPayload
+      };
+
+      callBackendAPI(reqPayload, (response) => {
+        if (response.status === 'success') {
+          console.log('SDM Auto-saved successfully. SDM Report ID: ' + response.sdm_report_id);
+          if (loadedReportData) {
+            loadedReportData.sdm_report_id = response.sdm_report_id;
+          }
+        } else {
+          console.log('SDM Auto-save warning: ' + response.message);
+        }
+      }, (error) => {
+        console.error('SDM Auto-save network/server error:', error);
+      });
+    }
+
     // ==========================================
     // INITIALIZATION & EVENT HANDLERS
     // ==========================================
     window.addEventListener('DOMContentLoaded', () => {
+      loadDropdownAndSdmData();
       setupSignaturePad('patwariSigCanvas');
       setupSignaturePad('sdmSigCanvas');
 
@@ -4094,7 +4357,7 @@
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td>${sNo}</td>
-        <td><input type="text" class="v_name" value="${data.v_name || ''}" placeholder="ग्राम का नाम" required oninput="syncVillagesToAllTables()"></td>
+        <td><input type="text" class="v_name" value="${data.v_name || ''}" placeholder="चयन हेतु क्लिक करें" required onclick="openVillageSelector(this)" readonly style="cursor: pointer; background-color: #f1f5f9;"></td>
         <td><input type="number" class="v_khata" value="${data.v_khata || ''}" placeholder="संख्या" required></td>
         <td><input type="number" class="v_khasra" value="${data.v_khasra || ''}" placeholder="संख्या" required></td>
         <td><input type="text" class="v_area" value="${data.v_area || ''}" placeholder="क्षे."></td>
@@ -4815,6 +5078,25 @@
     function jumpToStep(step) {
       if (step < 1 || step > 11) return;
 
+      // Enforce Page 1 required fields for going beyond step 1
+      if (step > 1) {
+        const step1Div = document.getElementById('step1');
+        const step1Required = step1Div.querySelectorAll('[required]');
+        let step1Valid = true;
+        step1Required.forEach(input => {
+          if (!input.value.trim()) {
+            step1Valid = false;
+            input.style.borderColor = 'var(--danger-color)';
+          } else {
+            input.style.borderColor = '';
+          }
+        });
+        if (!step1Valid) {
+          alert('कृपया चरण 1 (Step 1) के सभी आवश्यक (*) खेतों को पहले भरें।');
+          return;
+        }
+      }
+
       // Validation going forward
       if (step > currentStep) {
         if (!validateCurrentStepFields()) {
@@ -4823,9 +5105,13 @@
         }
       }
 
-      // Auto-save progress if moving to another step in Patwari mode
-      if (!isSdmVerificationMode && currentStep !== 11) {
-        autoSavePatwariData();
+      // Auto-save progress if moving to another step
+      if (currentStep !== 11) {
+        if (isSdmVerificationMode) {
+          autoSaveSdmData();
+        } else {
+          autoSavePatwariData();
+        }
       }
 
       // Hide all steps
@@ -5024,6 +5310,7 @@
     }
 
     function prefillFormWithData(data) {
+      isPrefillingForm = true;
       loadedReportId = data.report_id || null;
       loadedReportData = data;
 
@@ -5189,11 +5476,12 @@
       };
 
       setVal('mobile_no', data.mobile_no);
+      const fallbackSdm = (globalDropdownData && globalDropdownData.sdmName) ? globalDropdownData.sdmName : 'उपखंड अधिकारी भिनाय';
       const validPrefilledSdmName = (data.prefilled_sdm_name && data.prefilled_sdm_name !== '-')
         ? data.prefilled_sdm_name
         : ((data.sdm_name && data.sdm_name !== '-')
           ? data.sdm_name
-          : 'उपखंड अधिकारी भिनाय');
+          : fallbackSdm);
       setVal('prefilled_sdm_name', validPrefilledSdmName);
       setVal('sdm_name', (data.sdm_name && data.sdm_name !== '-') ? data.sdm_name : validPrefilledSdmName);
       setVal('patwari_name', data.patwari_name);
@@ -5251,6 +5539,7 @@
       setVal('sdm_dispatch_patwari_tehsil', data.sdm_dispatch_patwari_tehsil || 'भिनाय');
 
       // Populate tables from JSON
+      let statsLoaded = false;
       try {
         const stats = JSON.parse(data.village_stats_json || '[]');
         if (stats.length > 0) {
@@ -5258,9 +5547,18 @@
           if (vStatsBody) {
             vStatsBody.innerHTML = '';
             stats.forEach(row => addVillageRow(row));
+            statsLoaded = true;
           }
         }
       } catch (e) { console.error('Stats prefill error:', e); }
+
+      // If no stats were loaded but a patwar mandal was specified, populate default villages
+      if (!statsLoaded && data.patwar_mandal) {
+        const prevPrefillVal = isPrefillingForm;
+        isPrefillingForm = false;
+        handlePatwarMandalChange(data.patwar_mandal);
+        isPrefillingForm = prevPrefillVal;
+      }
 
       try {
         let ins = [];
@@ -5579,6 +5877,7 @@
       } catch (e) { console.error('Kanungo prefill error:', e); }
 
       updateStep3Preview();
+      isPrefillingForm = false;
     }
 
     function prefillSyncTable(tbodyId, jsonStr) {
@@ -8907,7 +9206,8 @@
 
         html = `
           <div class="print-header">
-            <h1 style="font-family: 'Tiro Devanagari Hindi', serif; font-size: 1.6rem; color: #064e3b;">${title}</h1>
+            <h1 style="font-family: 'Tiro Devanagari Hindi', serif; font-size: 1.8rem; margin-bottom: 2px; text-align: center;">कार्यालय उपखंड अधिकारी भिनाय</h1>
+            <h2 style="font-family: 'Tiro Devanagari Hindi', serif; font-size: 1.3rem; margin-top: 0; color: #064e3b; font-weight: 600; text-align: center;">${title}</h2>
             <p>रिपोर्ट दिनांक: ${new Date().toLocaleDateString('hi-IN')} | कुल पटवार मण्डल: ${totalReports}</p>
           </div>
           <div class="print-section">
@@ -9034,7 +9334,8 @@
 
         html = `
           <div class="print-header">
-            <h1 style="font-family: 'Tiro Devanagari Hindi', serif; font-size: 1.6rem; color: #064e3b;">${title}</h1>
+            <h1 style="font-family: 'Tiro Devanagari Hindi', serif; font-size: 1.8rem; margin-bottom: 2px; text-align: center;">कार्यालय उपखंड अधिकारी भिनाय</h1>
+            <h2 style="font-family: 'Tiro Devanagari Hindi', serif; font-size: 1.3rem; margin-top: 0; color: #064e3b; font-weight: 600; text-align: center;">${title}</h2>
             <p>रिपोर्ट तैयार करने की तिथि: ${new Date().toLocaleDateString('hi-IN')} | कुल रिकॉर्ड्स: ${patwariList.length}</p>
           </div>
           <div class="print-section">
@@ -9081,7 +9382,8 @@
 
         html = `
           <div class="print-header">
-            <h1 style="font-family: 'Tiro Devanagari Hindi', serif; font-size: 1.6rem; color: #064e3b;">${title}</h1>
+            <h1 style="font-family: 'Tiro Devanagari Hindi', serif; font-size: 1.8rem; margin-bottom: 2px; text-align: center;">कार्यालय उपखंड अधिकारी भिनाय</h1>
+            <h2 style="font-family: 'Tiro Devanagari Hindi', serif; font-size: 1.3rem; margin-top: 0; color: #064e3b; font-weight: 600; text-align: center;">${title}</h2>
             <p>समीक्षा तिथि: ${new Date().toLocaleDateString('hi-IN')} | कुल मण्डल: ${patwariList.length}</p>
           </div>
           <div class="print-section">
@@ -9156,7 +9458,8 @@
 
         html = `
           <div class="print-header">
-            <h1 style="font-family: 'Tiro Devanagari Hindi', serif; font-size: 1.6rem; color: #064e3b;">${title}</h1>
+            <h1 style="font-family: 'Tiro Devanagari Hindi', serif; font-size: 1.8rem; margin-bottom: 2px; text-align: center;">कार्यालय उपखंड अधिकारी भिनाय</h1>
+            <h2 style="font-family: 'Tiro Devanagari Hindi', serif; font-size: 1.3rem; margin-top: 0; color: #064e3b; font-weight: 600; text-align: center;">${title}</h2>
             <p>रिपोर्ट तिथि: ${new Date().toLocaleDateString('hi-IN')}</p>
           </div>
           <div class="print-section">
@@ -9233,7 +9536,8 @@
 
         html = `
           <div class="print-header">
-            <h1 style="font-family: 'Tiro Devanagari Hindi', serif; font-size: 1.6rem; color: #064e3b;">${title}</h1>
+            <h1 style="font-family: 'Tiro Devanagari Hindi', serif; font-size: 1.8rem; margin-bottom: 2px; text-align: center;">कार्यालय उपखंड अधिकारी भिनाय</h1>
+            <h2 style="font-family: 'Tiro Devanagari Hindi', serif; font-size: 1.3rem; margin-top: 0; color: #064e3b; font-weight: 600; text-align: center;">${title}</h2>
             <p>रिपोर्ट दिनांक: ${new Date().toLocaleDateString('hi-IN')}</p>
           </div>
           <div class="print-section">
@@ -9296,7 +9600,8 @@
 
         html = `
           <div class="print-header">
-            <h1 style="font-family: 'Tiro Devanagari Hindi', serif; font-size: 1.6rem; color: #064e3b;">${title}</h1>
+            <h1 style="font-family: 'Tiro Devanagari Hindi', serif; font-size: 1.8rem; margin-bottom: 2px; text-align: center;">कार्यालय उपखंड अधिकारी भिनाय</h1>
+            <h2 style="font-family: 'Tiro Devanagari Hindi', serif; font-size: 1.3rem; margin-top: 0; color: #064e3b; font-weight: 600; text-align: center;">${title}</h2>
             <p>रिपोर्ट दिनांक: ${new Date().toLocaleDateString('hi-IN')}</p>
           </div>
           <div class="print-section">
@@ -9483,7 +9788,8 @@
       // Compile and build clean HTML for printing
       let html = `
         <div class="print-header">
-          <h1>राजस्व ग्राम निरीक्षण रिपोर्ट</h1>
+          <h1 style="font-family: 'Tiro Devanagari Hindi', serif; font-size: 1.8rem; margin-bottom: 2px; text-align: center;">कार्यालय उपखंड अधिकारी भिनाय</h1>
+          <h2 style="font-family: 'Tiro Devanagari Hindi', serif; font-size: 1.3rem; margin-top: 0; color: #064e3b; font-weight: 600; text-align: center;">राजस्व ग्राम निरीक्षण रिपोर्ट</h2>
           <p>कार्यालय उपखंड अधिकारी: ${cleanSdmName} | उपखंड: ${data.tehsil || 'भिनाय'} (${data.district || 'अजमेर'})</p>
           <p><strong>निरीक्षण दिनांक:</strong> ${formatDateToDMY(data.inspection_date) || '..........'} | <strong>रिपोर्ट आईडी:</strong> ${data.report_id || 'MOCK'}</p>
         </div>
@@ -10855,6 +11161,8 @@
 
       if (currentActivePrintMode && currentActivePrintMode.startsWith('admin_summary_')) {
         const type = currentActivePrintMode.replace('admin_summary_', '');
+        const patwariList = adminFetchedData ? adminFetchedData.patwari_reports : [];
+        const sdmList = adminFetchedData ? adminFetchedData.sdm_reports : [];
         if (type === 'statistics') {
         title = 'बिंदुवार निरीक्षण अनुपालन एवं समेकित सांख्यिकी (Consolidated Statistical Summary)';
         filename = 'Consolidated_Statistical_Summary.pdf';
@@ -11058,7 +11366,8 @@
 
         html = `
           <div class="print-header">
-            <h1 style="font-family: 'Tiro Devanagari Hindi', serif; font-size: 1.6rem; color: #064e3b;">${title}</h1>
+            <h1 style="font-family: 'Tiro Devanagari Hindi', serif; font-size: 1.8rem; margin-bottom: 2px; text-align: center;">कार्यालय उपखंड अधिकारी भिनाय</h1>
+            <h2 style="font-family: 'Tiro Devanagari Hindi', serif; font-size: 1.3rem; margin-top: 0; color: #064e3b; font-weight: 600; text-align: center;">${title}</h2>
             <p>रिपोर्ट दिनांक: ${new Date().toLocaleDateString('hi-IN')} | कुल पटवार मण्डल: ${totalReports}</p>
           </div>
           <div class="print-section">
@@ -11278,6 +11587,8 @@
           runner.saveSdmReport(payload.payload);
         } else if (payload.action === 'getAdminData') {
           runner.getAdminDashboardData();
+        } else if (payload.action === 'getDropdownData') {
+          runner.getDropdownData();
         }
         return;
       }
@@ -11559,6 +11870,17 @@
               },
               patwari_reports: patwariReports,
               sdm_reports: sdmReports
+            });
+          } else if (payload.action === 'getDropdownData') {
+            successCallback({
+              status: 'success',
+              sdmName: 'श्रीमती जीतू कुलहरी',
+              mappings: [
+                { panchayat: 'बडली', patwarMandal: 'बडली', village: 'बडली' },
+                { panchayat: 'बडगांव', patwarMandal: 'केरियाखूर्द', village: 'केरियाखूर्द' },
+                { panchayat: 'बडगांव', patwarMandal: 'केरियाखूर्द', village: 'रघुनाथपुरा' },
+                { panchayat: 'बडगांव', patwarMandal: 'बडगांव', village: 'बडगांव' }
+              ]
             });
           }
         } catch (e) {
