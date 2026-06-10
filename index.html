@@ -3630,7 +3630,7 @@
           // 1. Prefill SDM name in fields if empty
           if (response.sdmName) {
             const prefilledSdmInput = document.getElementById('prefilled_sdm_name');
-            if (prefilledSdmInput && !prefilledSdmInput.value.trim()) {
+            if (prefilledSdmInput && (!prefilledSdmInput.value.trim() || prefilledSdmInput.value === 'उपखंड अधिकारी भिनाय')) {
               prefilledSdmInput.value = response.sdmName;
             }
             const sdmNameInput = document.getElementById('sdm_name');
